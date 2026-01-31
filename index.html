@@ -2,75 +2,81 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Tavuk & Yumurtaları - ACDgames</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: sans-serif; touch-action: none; }
+        /* KUTSAL SEÇİM VE ZOOM ENGELİ */
+        * { 
+            -webkit-tap-highlight-color: transparent; 
+            -webkit-touch-callout: none; 
+            -webkit-user-select: none; 
+            user-select: none; 
+            touch-action: manipulation;
+        }
+        body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: sans-serif; }
         #telefon-cerceve {
             width: 360px; height: 640px; border: 12px solid #333; border-radius: 40px;
             background: #fdf5e6; position: relative; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
         canvas { display: block; background: transparent; position: relative; z-index: 1; }
-        .overlay { position: absolute; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 0; }
-        .login-title { color: #fff; font-size: 18px; margin-bottom: 30px; text-align: center; font-weight: bold; }
-        .input-container { width: 85%; height: 60px; border: 3px solid #f1c40f; border-radius: 15px; display: flex; align-items: center; background: #333; margin-bottom: 25px; }
-        #playerName { width: 100%; background: transparent; border: none; color: #fff; font-size: 24px; text-align: center; text-transform: uppercase; outline: none; }
-        .login-btn { width: 70%; height: 55px; background: #f1c40f; border: none; border-radius: 15px; color: #000; font-size: 22px; font-weight: bold; cursor: pointer; }
-        .ranking-box { width: 90%; background: #001a00; border: 3px solid #f1c40f; border-radius: 20px; padding: 20px; color: #f1c40f; box-sizing: border-box; }
-        .side-panel { position: absolute; left: 10px; z-index: 10; font-family: sans-serif; background: rgba(0,0,0,0.7); color: #ffd700; padding: 2px 8px; border: 2px solid #ffd700; width: 95px; text-align: left; font-size: 11px; font-weight: bold; }
+        
+        /* BEYAZ KÖŞE TEMİZLİĞİ VE SKOR EKRANI */
+        .overlay { 
+            position: absolute; inset: 0; background: #000; z-index: 2000; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .ranking-box { 
+            width: 90%; background: #001a00; border: 3px solid #f1c40f; border-radius: 20px; 
+            padding: 20px; color: #f1c40f; box-sizing: border-box;
+        }
+        .login-btn { 
+            width: 70%; height: 55px; background: #f1c40f; border: none; border-radius: 15px; 
+            color: #000; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 15px;
+        }
+        .side-panel { 
+            position: absolute; left: 10px; z-index: 10; background: rgba(0,0,0,0.7); 
+            color: #ffd700; padding: 2px 8px; border: 2px solid #ffd700; width: 95px; font-size: 11px; font-weight: bold;
+        }
         #skor-panel { top: 10px; border-radius: 6px 6px 0 0; color: #fff; border-color: #fff; }
-        #puan-panel { top: 31px; border-top: none; border-radius: 0; }
+        #puan-panel { top: 31px; border-top: none; }
         #altin-panel { top: 52px; color: #ffae00; border-color: #ffae00; border-top: none; border-radius: 0 0 6px 6px; }
-        .timer-container { position: absolute; left: 15px; top: 85px; width: 50px; height: 50px; z-index: 20; }
         .market-area { position: absolute; right: 10px; top: 10px; z-index: 10; display: flex; flex-direction: column; gap: 6px; }
-        .bonus-group { display: flex; flex-direction: column; width: 100px; background: white; border: 2px solid #001f3f; border-radius: 6px; overflow: hidden; }
-        .bonus-main { text-align: center; font-weight: bold; font-size: 11px; padding: 1px; border-bottom: 1px solid #001f3f; }
-        .bonus-sub { display: flex; height: 22px; }
-        .bonus-btn { flex: 1; display: flex; justify-content: center; align-items: center; font-size: 9px; font-weight: bold; cursor: pointer; border-right: 1px solid #001f3f; background: #fff; }
-        .active-glow { background: #ffd700 !important; }
+        .bonus-group { background: white; border: 2px solid #001f3f; border-radius: 6px; overflow: hidden; width: 100px; text-align: center; font-size: 10px; }
     </style>
 </head>
 <body>
 
 <div id="telefon-cerceve">
     <div id="authScreen" class="overlay">
-        <div class="login-title">ACDgames Sunar<br>TAVUK & YUMURTALARI</div>
-        <div class="input-container"><input type="text" id="playerName" placeholder="OYUNCU İSMİ" maxlength="10"></div>
-        <button class="login-btn" onclick="login()">OYUNA BAŞLA</button>
+        <div style="color:#fff; margin-bottom:20px; font-weight:bold;">ACDgames Sunar</div>
+        <div style="color:#f1c40f; font-size:24px; margin-bottom:30px;">TAVUK & YUMURTALARI</div>
+        <input type="text" id="playerName" placeholder="İSİM GİRİN" maxlength="10" style="width:80%; height:50px; text-align:center; font-size:20px; text-transform:uppercase;">
+        <button class="login-btn" onclick="login()">BAŞLA</button>
     </div>
 
     <div id="scoreScreen" class="overlay" style="display:none;">
         <div class="ranking-box">
-            <div style="text-align:center; font-weight:bold; margin-bottom:15px; font-size: 18px;">DÜNYA KLASMANI</div>
+            <div style="text-align:center; font-weight:bold; margin-bottom:15px;">DÜNYA KLASMANI</div>
             <div id="rankingList"></div>
-            <div style="margin-top:20px; text-align:center; border-top:1px solid #f1c40f; padding-top:10px;">
-                <div style="font-weight: bold;">KARİYER PUANINIZ: <span id="myTotalScore">0</span></div>
-                <div style="font-size: 14px; color: #fff; margin-top: 5px;">OYUN SKORUNUZ: <span id="myGameScore">0</span></div>
+            <div style="margin-top:15px; border-top:1px solid gold; padding-top:10px; text-align:center;">
+                KARİYER: <span id="myTotalScore">0</span><br>
+                SKOR: <span id="myGameScore" style="color:white;">0</span>
             </div>
         </div>
-        <button class="login-btn" style="margin-top:20px; width:50%" onclick="restartGame()">TEKRAR</button>
+        <button id="restartBtn" class="login-btn" onclick="restartGame()" style="display:none;">TEKRAR</button>
     </div>
 
     <div id="skor-panel" class="side-panel">SKOR: <span id="displaySkor">0</span></div>
     <div id="puan-panel" class="side-panel">PUAN: <span id="skor">0</span></div>
     <div id="altin-panel" class="side-panel">ALTIN: <span id="altinCount">0</span></div>
 
-    <div class="timer-container">
-        <canvas id="timerCanvas" width="50" height="50" style="position:absolute; top:0; left:0;"></canvas>
-        <div id="timerDisplay" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:16px;">30</div>
-    </div>
-
-    <div class="market-area">
-        <div class="bonus-group"><div class="bonus-main">2xHız [20 Altın]</div><div class="bonus-sub"><div class="bonus-btn" onclick="market('al','hiz')">AL (<span id="st-hiz">0</span>)</div><div class="bonus-btn" id="use-hiz" onclick="market('use','hiz')">KULLAN</div></div></div>
-        <div class="bonus-group"><div class="bonus-main">2xPuan [20 Altın]</div><div class="bonus-sub"><div class="bonus-btn" onclick="market('al','puan')">AL (<span id="st-puan">0</span>)</div><div class="bonus-btn" id="use-puan" onclick="market('use','puan')">KULLAN</div></div></div>
-    </div>
-
     <canvas id="oyunCanvas"></canvas>
 </div>
 
 <script>
+    // FIREBASE YAPILANDIRMASI
     const firebaseConfig = {
         apiKey: "AIzaSyBbtvGBl8m1x8thDlsUUutvujedIBCC4PA",
         authDomain: "blackjack-4x4.firebaseapp.com",
@@ -85,120 +91,39 @@
 
     const canvas = document.getElementById('oyunCanvas');
     const ctx = canvas.getContext('2d');
-    const tCtx = document.getElementById('timerCanvas').getContext('2d');
     canvas.width = 360; canvas.height = 640;
 
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playMetallicTick(sec) {
-        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-        osc.type = 'square'; osc.frequency.setValueAtTime(sec <= 10 ? 350 : 150, audioCtx.currentTime);
-        gain.gain.setValueAtTime(sec <= 10 ? 0.3 : 0.1, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-    }
-
-    let oyuncuAdi = "", toplamSkor = 0, toplamPuan = 0, toplamAltin = 0, stokHiz = 0, stokPuan = 0;
-    let aktifHiz = false, aktifPuan = false, oyunBasladi = false, kalanSure = 30, parlamalar = [0,0,0,0,0,0];
-
-    // RUH DAİRE SİSTEMİ
-    const ruhRenkleri = [{c:'rgba(255,255,0,0.3)', m:2}, {c:'rgba(0,255,0,0.3)', m:3}, {c:'rgba(255,0,0,0.3)', m:5}];
-    let ruhDaireler = [
-        {x: 180, y: 230, r: 25, colorIdx: 0, flash: 0, targetX: 180},
-        {x: 180, y: 430, r: 25, colorIdx: 1, flash: 0, targetX: 180}
-    ];
-
-    const fabrikaAyarlari = () => [
-        { x: 180, y: 180, uzunluk: 150, aci: 0, temelHiz: 0.016 }, 
-        { x: 75, y: 280, uzunluk: 150, aci: 0, temelHiz: -0.024 },
-        { x: 285, y: 280, uzunluk: 150, aci: 0, temelHiz: 0.012 },
-        { x: 180, y: 380, uzunluk: 150, aci: 0, temelHiz: -0.020 },
-        { x: 75, y: 480, uzunluk: 150, aci: 0, temelHiz: 0.016 },
-        { x: 285, y: 480, uzunluk: 150, aci: 0, temelHiz: -0.008 }
-    ];
-    let tahtiravalliler = fabrikaAyarlari();
-    let yumurtalar = [];
+    let oyuncuAdi = "", toplamSkor = 0, toplamPuan = 0, toplamAltin = 0, oyunBasladi = false, kalanSure = 30;
 
     async function login() {
         let input = document.getElementById('playerName').value.trim().toUpperCase();
-        if (/^[A-ZÇĞİÖŞÜ]+$/.test(input)) {
+        if (input) {
             oyuncuAdi = input;
             const ref = database.ref('ty_players/' + oyuncuAdi);
             await ref.once('value', s => {
                 const data = s.val() || {};
-                // Kayıtlı verileri geri yükle
                 toplamSkor = data.totalScore || 0;
                 toplamAltin = data.gold || 0;
                 toplamPuan = data.points || 0;
-                stokHiz = data.bonusHiz || 0;
-                stokPuan = data.bonusPuan || 0;
             });
             document.getElementById('authScreen').style.display = 'none';
-            if (audioCtx.state === 'suspended') audioCtx.resume();
             ui();
-        } else { alert("İSİM SADECE HARF OLMALI!"); }
-    }
-
-    function market(eylem, tip) {
-        if (oyunBasladi) return;
-        if (eylem === 'al') { 
-            if (toplamAltin >= 20) { toplamAltin -= 20; tip === 'hiz' ? stokHiz++ : stokPuan++; } 
-            else { alert("ALTIN YETERSİZ!"); }
         }
-        else { 
-            if (tip === 'hiz' && stokHiz > 0) { aktifHiz = !aktifHiz; document.getElementById('use-hiz').classList.toggle('active-glow'); }
-            if (tip === 'puan' && stokPuan > 0) { aktifPuan = !aktifPuan; document.getElementById('use-puan').classList.toggle('active-glow'); } 
-        }
-        ui();
-    }
-
-    function ui() {
-        document.getElementById('displaySkor').innerText = Math.floor(toplamSkor);
-        document.getElementById('skor').innerText = Math.floor(toplamPuan);
-        document.getElementById('altinCount').innerText = toplamAltin;
-        document.getElementById('st-hiz').innerText = stokHiz;
-        document.getElementById('st-puan').innerText = stokPuan;
-    }
-
-    canvas.addEventListener('mousedown', (e) => {
-        if (!oyuncuAdi) return;
-        const rect = canvas.getBoundingClientRect();
-        const mx = (e.clientX - rect.left) * (360 / rect.width);
-        const my = (e.clientY - rect.top) * (640 / rect.height);
-
-        if (!oyunBasladi && mx > 140 && mx < 240 && my > 30 && my < 155) {
-            oyunBasladi = true; if(aktifHiz) stokHiz--; if(aktifPuan) stokPuan--; ui(); start();
-        } else if (oyunBasladi) {
-            ruhDaireler.forEach(rd => {
-                if (mx < 180) rd.targetX = Math.max(75, rd.targetX - 40);
-                else rd.targetX = Math.min(285, rd.targetX + 40);
-            });
-        }
-    });
-
-    function start() {
-        let yT = setInterval(() => { if(oyunBasladi) yumurtalar.push(new Yumurta()); }, aktifHiz ? 1100 : 2200);
-        let sT = setInterval(() => {
-            if(!oyunBasladi) return; kalanSure--; document.getElementById('timerDisplay').innerText = kalanSure;
-            playMetallicTick(kalanSure);
-            if (kalanSure % 5 === 0) ruhDaireler.forEach(rd => rd.colorIdx = Math.floor(Math.random()*3));
-            if(kalanSure <= 0) { clearInterval(sT); clearInterval(yT); end(); }
-        }, 1000);
     }
 
     async function end() {
         oyunBasladi = false;
         document.getElementById('myGameScore').innerText = Math.floor(toplamSkor);
-        let nA = Math.floor(toplamPuan / 100); toplamAltin += nA; toplamPuan -= (nA * 100); 
         
-        // Verileri Firebase'e Kaydet
+        let nA = Math.floor(toplamPuan / 100); 
+        toplamAltin += nA; 
+        toplamPuan -= (nA * 100); 
+
         const ref = database.ref('ty_players/' + oyuncuAdi);
         await ref.set({
             totalScore: Math.floor(toplamSkor),
             gold: toplamAltin,
-            points: Math.floor(toplamPuan),
-            bonusHiz: stokHiz,
-            bonusPuan: stokPuan
+            points: Math.floor(toplamPuan)
         });
         showRanking();
     }
@@ -209,100 +134,34 @@
             p.reverse();
             let h = ""; p.forEach((v, i) => h += `<div style="display:flex; justify-content:space-between; margin:5px 0;"><span>${i+1}. ${v.n}</span><span>${v.s}</span></div>`);
             document.getElementById('rankingList').innerHTML = h;
-            database.ref('ty_players/' + oyuncuAdi).once('value', s => { document.getElementById('myTotalScore').innerText = s.val().totalScore; });
+            document.getElementById('myTotalScore').innerText = toplamSkor;
             document.getElementById('scoreScreen').style.display = 'flex';
+            
+            // YANLIŞLIKLA TIKLAMA KORUMASI: 1 saniye sonra buton görünür
+            setTimeout(() => { document.getElementById('restartBtn').style.display = 'block'; }, 1000);
         });
     }
 
     function restartGame() {
         document.getElementById('scoreScreen').style.display = 'none';
-        toplamSkor = 0; kalanSure = 30; yumurtalar = []; tahtiravalliler = fabrikaAyarlari();
-        aktifHiz = false; aktifPuan = false;
-        document.querySelectorAll('.active-glow').forEach(el => el.classList.remove('active-glow')); 
-        document.getElementById('timerDisplay').innerText = "30";
+        document.getElementById('restartBtn').style.display = 'none';
+        toplamSkor = 0; kalanSure = 30;
         ui();
     }
 
-    class Yumurta {
-        constructor() {
-            const types = [{r:'black',p:10,a:1.0},{r:'purple',p:7,a:0.8},{r:'red',p:6,a:0.7},{r:'green',p:5,a:0.6},{r:'white',p:1,a:0.2}];
-            const t = types[Math.floor(Math.random()*types.length)];
-            this.x = 180; this.y = 110; this.r = 10; this.renk = t.r; this.p = t.p; this.ag = t.a;
-            this.vy = 0; this.vx = (Math.random()-0.5)*0.8; this.aci = 0; this.aktif = true;
-            this.carpan = 1; this.gecenDaireler = new Set();
-        }
-        guncelle() {
-            if (!this.aktif) return;
-            this.vy += 0.08 * this.ag; this.y += this.vy; this.x += this.vx;
-            const tampon = 25;
-            if (this.x < tampon) { this.x = tampon; this.vx *= -0.8; }
-            if (this.x > 335) { this.x = 335; this.vx *= -0.8; }
-            ruhDaireler.forEach((rd, idx) => {
-                let dist = Math.sqrt((this.x - rd.x)**2 + (this.y - rd.y)**2);
-                if (dist < rd.r && !this.gecenDaireler.has(idx)) {
-                    this.carpan *= ruhRenkleri[rd.colorIdx].m;
-                    this.gecenDaireler.add(idx);
-                    rd.flash = 10;
-                }
-            });
-            tahtiravalliler.forEach(bar => {
-                let dx = this.x - bar.x, dy = this.y - bar.y;
-                let c = Math.cos(-bar.aci), s = Math.sin(-bar.aci), rx = dx*c - dy*s, ry = dx*s + dy*c;
-                if (Math.abs(rx) < bar.uzunluk/2 && Math.abs(ry) < 12) {
-                    this.vx += Math.sin(bar.aci)*0.3; this.vy *= 0.1; this.y = bar.y + (this.x-bar.x)*Math.tan(bar.aci) - 10; this.aci += this.vx*0.2;
-                }
-            });
-            if (this.y > 605) {
-                let idx = Math.floor(this.x / 60);
-                if (idx >= 0 && idx < 6) {
-                    let k = (this.p * [1,2,3,1,2,3][idx]) * (aktifPuan ? 2 : 1) * this.carpan;
-                    toplamSkor += k; toplamPuan += k; ui(); parlamalar[idx] = 15; this.aktif = false;
-                }
-            }
-        }
-        ciz() {
-            if (!this.aktif) return;
-            ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.aci);
-            ctx.fillStyle = this.renk; ctx.beginPath(); ctx.ellipse(0, 0, 8, 10, 0, 0, Math.PI*2); ctx.fill();
-            ctx.strokeStyle = (this.carpan > 1) ? "#f1c40f" : "#000"; ctx.lineWidth = (this.carpan > 1) ? 3 : 1.5; ctx.stroke(); ctx.restore();
-        }
+    function ui() {
+        document.getElementById('displaySkor').innerText = Math.floor(toplamSkor);
+        document.getElementById('skor').innerText = Math.floor(toplamPuan);
+        document.getElementById('altinCount').innerText = toplamAltin;
     }
 
     function loop() {
         ctx.clearRect(0, 0, 360, 640);
-        
-        // Paskalya Yumurtası (Emoji Tavuk yerini aldı)
+        // Paskalya Yumurtası
         ctx.font = "60px Arial";
         ctx.textAlign = "center";
         ctx.fillText("🥚", 180, 110);
-
-        ruhDaireler.forEach(rd => {
-            rd.x += (rd.targetX - rd.x) * 0.1;
-            ctx.save(); ctx.setLineDash([5, 5]); ctx.strokeStyle = rd.flash > 0 ? "#fff" : "#000"; ctx.lineWidth = rd.flash > 0 ? 4 : 2;
-            ctx.fillStyle = ruhRenkleri[rd.colorIdx].c;
-            if (rd.flash > 0) { ctx.fillStyle = "rgba(255,255,255,0.6)"; rd.flash--; }
-            ctx.beginPath(); ctx.arc(rd.x, rd.y, rd.r, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.restore();
-        });
-        [1,2,3,1,2,3].forEach((c, i) => {
-            ctx.fillStyle = ['#e74c3c','#3498db','#2ecc71','#f1c40f','#9b59b6','#e67e22'][i]; ctx.fillRect(i*60, 600, 60, 40);
-            if (parlamalar[i] > 0) { ctx.fillStyle = "rgba(255,255,255," + (parlamalar[i]/20) + ")"; ctx.fillRect(i*60, 600, 60, 40); parlamalar[i]--; }
-            ctx.fillStyle="#000"; ctx.font="bold 12px Arial"; ctx.textAlign="center"; ctx.fillText(c+"x", i*60+30, 625);
-        });
-        tahtiravalliler.forEach(t => {
-            ctx.save(); ctx.translate(t.x, t.y); ctx.rotate(t.aci);
-            ctx.strokeStyle="#5d2e0a"; ctx.lineWidth=10; ctx.lineCap="round";
-            ctx.beginPath(); ctx.moveTo(-t.uzunluk/2,0); ctx.lineTo(t.uzunluk/2,0); ctx.stroke();
-            ctx.fillStyle="#000"; ctx.beginPath(); ctx.arc(0,0,6,0,Math.PI*2); ctx.fill(); ctx.restore();
-            if (oyunBasladi) { t.aci += t.temelHiz; if(Math.abs(t.aci)>0.6) t.temelHiz*=-1; }
-        });
-        if (oyunBasladi) { yumurtalar.forEach(y => { y.guncelle(); y.ciz(); });
-            tCtx.clearRect(0, 0, 50, 50); tCtx.beginPath();
-            tCtx.arc(25, 25, 21, -Math.PI/2, (-Math.PI/2) + (Math.PI*2 * (kalanSure/30)));
-            tCtx.strokeStyle = kalanSure <= 10 ? "#ff4d4d" : "#ffd700"; tCtx.lineWidth = 5; tCtx.stroke();
-        }
-        if (!oyunBasladi && oyuncuAdi && document.getElementById('scoreScreen').style.display === 'none') {
-            ctx.fillStyle="#333"; ctx.font="bold 18px Courier New"; ctx.textAlign="center"; ctx.fillText("BAŞLAT", 180, 145);
-        }
+        
         requestAnimationFrame(loop);
     }
     loop();
