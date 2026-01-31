@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tavuk & Yumurtaları - KUTSAL EKONOMİ</title>
+    <title>Tavuk & Yumurtaları - ACDgames</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
@@ -13,8 +13,8 @@
             background: #fdf5e6; position: relative; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
         canvas { display: block; background: transparent; position: relative; z-index: 1; }
-        .overlay { position: absolute; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .login-title { color: #fff; font-size: 18px; margin-bottom: 30px; text-align: center; }
+        .overlay { position: absolute; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 0; }
+        .login-title { color: #fff; font-size: 18px; margin-bottom: 30px; text-align: center; font-weight: bold; }
         .input-container { width: 85%; height: 60px; border: 3px solid #f1c40f; border-radius: 15px; display: flex; align-items: center; background: #333; margin-bottom: 25px; }
         #playerName { width: 100%; background: transparent; border: none; color: #fff; font-size: 24px; text-align: center; text-transform: uppercase; outline: none; }
         .login-btn { width: 70%; height: 55px; background: #f1c40f; border: none; border-radius: 15px; color: #000; font-size: 22px; font-weight: bold; cursor: pointer; }
@@ -43,11 +43,11 @@
 
     <div id="scoreScreen" class="overlay" style="display:none;">
         <div class="ranking-box">
-            <div style="text-align:center; font-weight:bold; margin-bottom:15px; font-size:18px;">DÜNYA KLASMANI</div>
+            <div style="text-align:center; font-weight:bold; margin-bottom:15px; font-size: 18px;">DÜNYA KLASMANI</div>
             <div id="rankingList"></div>
             <div style="margin-top:20px; text-align:center; border-top:1px solid #f1c40f; padding-top:10px;">
-                <div style="font-weight:bold;">KARİYER PUANINIZ: <span id="myTotalScore">0</span></div>
-                <div style="font-size:14px; color:#fff; margin-top:5px;">OYUN SKORUNUZ: <span id="myGameScore">0</span></div>
+                <div style="font-weight: bold;">KARİYER PUANINIZ: <span id="myTotalScore">0</span></div>
+                <div style="font-size: 14px; color: #fff; margin-top: 5px;">OYUN SKORUNUZ: <span id="myGameScore">0</span></div>
             </div>
         </div>
         <button class="login-btn" style="margin-top:20px; width:50%" onclick="restartGame()">TEKRAR</button>
@@ -100,8 +100,8 @@
 
     let oyuncuAdi = "", toplamSkor = 0, toplamPuan = 0, toplamAltin = 0, stokHiz = 0, stokPuan = 0;
     let aktifHiz = false, aktifPuan = false, oyunBasladi = false, kalanSure = 30, parlamalar = [0,0,0,0,0,0];
-    const tavukImg = new Image(); tavukImg.src = 'tavuk.png';
 
+    // RUH DAİRE SİSTEMİ
     const ruhRenkleri = [{c:'rgba(255,255,0,0.3)', m:2}, {c:'rgba(0,255,0,0.3)', m:3}, {c:'rgba(255,0,0,0.3)', m:5}];
     let ruhDaireler = [
         {x: 180, y: 230, r: 25, colorIdx: 0, flash: 0, targetX: 180},
@@ -126,6 +126,7 @@
             const ref = database.ref('ty_players/' + oyuncuAdi);
             await ref.once('value', s => {
                 const data = s.val() || {};
+                // Kayıtlı verileri geri yükle
                 toplamSkor = data.totalScore || 0;
                 toplamAltin = data.gold || 0;
                 toplamPuan = data.points || 0;
@@ -135,7 +136,7 @@
             document.getElementById('authScreen').style.display = 'none';
             if (audioCtx.state === 'suspended') audioCtx.resume();
             ui();
-        } else { alert("İSİM SADECE HARF!"); }
+        } else { alert("İSİM SADECE HARF OLMALI!"); }
     }
 
     function market(eylem, tip) {
@@ -164,6 +165,7 @@
         const rect = canvas.getBoundingClientRect();
         const mx = (e.clientX - rect.left) * (360 / rect.width);
         const my = (e.clientY - rect.top) * (640 / rect.height);
+
         if (!oyunBasladi && mx > 140 && mx < 240 && my > 30 && my < 155) {
             oyunBasladi = true; if(aktifHiz) stokHiz--; if(aktifPuan) stokPuan--; ui(); start();
         } else if (oyunBasladi) {
@@ -187,7 +189,9 @@
     async function end() {
         oyunBasladi = false;
         document.getElementById('myGameScore').innerText = Math.floor(toplamSkor);
-        let nA = Math.floor(toplamPuan / 100); toplamAltin += nA; toplamPuan -= (nA * 100);
+        let nA = Math.floor(toplamPuan / 100); toplamAltin += nA; toplamPuan -= (nA * 100); 
+        
+        // Verileri Firebase'e Kaydet
         const ref = database.ref('ty_players/' + oyuncuAdi);
         await ref.set({
             totalScore: Math.floor(toplamSkor),
@@ -214,7 +218,7 @@
         document.getElementById('scoreScreen').style.display = 'none';
         toplamSkor = 0; kalanSure = 30; yumurtalar = []; tahtiravalliler = fabrikaAyarlari();
         aktifHiz = false; aktifPuan = false;
-        document.querySelectorAll('.active-glow').forEach(el => el.classList.remove('active-glow'));
+        document.querySelectorAll('.active-glow').forEach(el => el.classList.remove('active-glow')); 
         document.getElementById('timerDisplay').innerText = "30";
         ui();
     }
@@ -266,7 +270,12 @@
 
     function loop() {
         ctx.clearRect(0, 0, 360, 640);
-        try { ctx.drawImage(tavukImg, 140, 45, 80, 80); } catch(e) {}
+        
+        // Paskalya Yumurtası (Emoji Tavuk yerini aldı)
+        ctx.font = "60px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("🥚", 180, 110);
+
         ruhDaireler.forEach(rd => {
             rd.x += (rd.targetX - rd.x) * 0.1;
             ctx.save(); ctx.setLineDash([5, 5]); ctx.strokeStyle = rd.flash > 0 ? "#fff" : "#000"; ctx.lineWidth = rd.flash > 0 ? 4 : 2;
