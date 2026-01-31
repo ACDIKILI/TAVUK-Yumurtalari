@@ -2,26 +2,17 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tavuk & Yumurtaları - ACDgames</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        /* iOS ZOOM, SEÇİM VE MAVİ GÖLGE ENGELİ */
-        * { 
-            -webkit-tap-highlight-color: transparent; 
-            -webkit-touch-callout: none; 
-            -webkit-user-select: none; 
-            user-select: none; 
-            touch-action: manipulation;
-        }
-        body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: sans-serif; }
+        body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: sans-serif; touch-action: none; }
         #telefon-cerceve {
             width: 360px; height: 640px; border: 12px solid #333; border-radius: 40px;
             background: #fdf5e6; position: relative; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
         canvas { display: block; background: transparent; position: relative; z-index: 1; }
-        /* BEYAZ KÖŞE TEMİZLİĞİ */
         .overlay { position: absolute; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 0; }
         .login-title { color: #fff; font-size: 18px; margin-bottom: 30px; text-align: center; font-weight: bold; }
         .input-container { width: 85%; height: 60px; border: 3px solid #f1c40f; border-radius: 15px; display: flex; align-items: center; background: #333; margin-bottom: 25px; }
@@ -30,8 +21,8 @@
         .ranking-box { width: 90%; background: #001a00; border: 3px solid #f1c40f; border-radius: 20px; padding: 20px; color: #f1c40f; box-sizing: border-box; }
         .side-panel { position: absolute; left: 10px; z-index: 10; font-family: sans-serif; background: rgba(0,0,0,0.7); color: #ffd700; padding: 2px 8px; border: 2px solid #ffd700; width: 95px; text-align: left; font-size: 11px; font-weight: bold; }
         #skor-panel { top: 10px; border-radius: 6px 6px 0 0; color: #fff; border-color: #fff; }
-        #puan-panel { top: 31px; border-top: none; }
-        #altin-panel { top: 52px; color: #ffae00; border-color: #ffae00; border-top: none; border-radius: 0 0 6px 6px; }
+        #puan-panel { top: 31px; border-top: none; border-radius: 0; }
+        #altin-panel { top: 52px; color: #ffae00; border-color: #ffae00; border-top: none; border-top-left-radius: 0; border-top-right-radius: 0; border-radius: 0 0 6px 6px; }
         .timer-container { position: absolute; left: 15px; top: 85px; width: 50px; height: 50px; z-index: 20; }
         .market-area { position: absolute; right: 10px; top: 10px; z-index: 10; display: flex; flex-direction: column; gap: 6px; }
         .bonus-group { display: flex; flex-direction: column; width: 100px; background: white; border: 2px solid #001f3f; border-radius: 6px; overflow: hidden; }
@@ -55,11 +46,11 @@
             <div style="text-align:center; font-weight:bold; margin-bottom:15px; font-size: 18px;">DÜNYA KLASMANI</div>
             <div id="rankingList"></div>
             <div style="margin-top:20px; text-align:center; border-top:1px solid #f1c40f; padding-top:10px;">
-                <div style="font-weight: bold;">TOPLAM KARİYER: <span id="myTotalScore">0</span></div>
+                <div style="font-weight: bold;">KARİYER PUANINIZ: <span id="myTotalScore">0</span></div>
                 <div style="font-size: 14px; color: #fff; margin-top: 5px;">OYUN SKORUNUZ: <span id="myGameScore">0</span></div>
             </div>
         </div>
-        <button id="restartBtn" class="login-btn" style="margin-top:20px; width:50%; display:none;" onclick="restartGame()">TEKRAR</button>
+        <button class="login-btn" style="margin-top:20px; width:50%" onclick="restartGame()">TEKRAR</button>
     </div>
 
     <div id="skor-panel" class="side-panel">SKOR: <span id="displaySkor">0</span></div>
@@ -108,7 +99,7 @@
     }
 
     let oyuncuAdi = "", toplamSkor = 0, toplamPuan = 0, toplamAltin = 0, stokHiz = 0, stokPuan = 0;
-    let aktifHiz = false, aktifPuan = false, oyunBasladi = false, kalanSure = 30, parlamalar = [0,0,0,0,0,0], hamSkor = 0;
+    let aktifHiz = false, aktifPuan = false, oyunBasladi = false, kalanSure = 30, parlamalar = [0,0,0,0,0,0], oAnkiOyunSkoru = 0;
 
     const ruhRenkleri = [{c:'rgba(255,255,0,0.3)', m:2}, {c:'rgba(0,255,0,0.3)', m:3}, {c:'rgba(255,0,0,0.3)', m:5}];
     let ruhDaireler = [
@@ -160,7 +151,7 @@
     }
 
     function ui() {
-        document.getElementById('displaySkor').innerText = Math.floor(hamSkor);
+        document.getElementById('displaySkor').innerText = Math.floor(oAnkiOyunSkoru);
         document.getElementById('skor').innerText = Math.floor(toplamPuan);
         document.getElementById('altinCount').innerText = toplamAltin;
         document.getElementById('st-hiz').innerText = stokHiz;
@@ -172,6 +163,7 @@
         const rect = canvas.getBoundingClientRect();
         const mx = (e.clientX - rect.left) * (360 / rect.width);
         const my = (e.clientY - rect.top) * (640 / rect.height);
+
         if (!oyunBasladi && mx > 140 && mx < 240 && my > 30 && my < 155) {
             oyunBasladi = true; if(aktifHiz) stokHiz--; if(aktifPuan) stokPuan--; ui(); start();
         } else if (oyunBasladi) {
@@ -183,6 +175,7 @@
     });
 
     function start() {
+        oAnkiOyunSkoru = 0;
         let yT = setInterval(() => { if(oyunBasladi) yumurtalar.push(new Yumurta()); }, aktifHiz ? 1100 : 2200);
         let sT = setInterval(() => {
             if(!oyunBasladi) return; kalanSure--; document.getElementById('timerDisplay').innerText = kalanSure;
@@ -194,8 +187,11 @@
 
     async function end() {
         oyunBasladi = false;
-        document.getElementById('myGameScore').innerText = Math.floor(hamSkor);
-        toplamSkor += hamSkor; 
+        document.getElementById('myGameScore').innerText = Math.floor(oAnkiOyunSkoru);
+        
+        // Skorun üzerine eklenmesi
+        toplamSkor += oAnkiOyunSkoru;
+        
         let nA = Math.floor(toplamPuan / 100); toplamAltin += nA; toplamPuan -= (nA * 100); 
         const ref = database.ref('ty_players/' + oyuncuAdi);
         await ref.set({
@@ -214,18 +210,16 @@
             p.reverse();
             let h = ""; p.forEach((v, i) => h += `<div style="display:flex; justify-content:space-between; margin:5px 0;"><span>${i+1}. ${v.n}</span><span>${v.s}</span></div>`);
             document.getElementById('rankingList').innerHTML = h;
-            document.getElementById('myTotalScore').innerText = Math.floor(toplamSkor);
+            database.ref('ty_players/' + oyuncuAdi).once('value', s => { document.getElementById('myTotalScore').innerText = s.val().totalScore; });
             document.getElementById('scoreScreen').style.display = 'flex';
-            setTimeout(() => { document.getElementById('restartBtn').style.display = 'block'; }, 1000);
         });
     }
 
     function restartGame() {
         document.getElementById('scoreScreen').style.display = 'none';
-        document.getElementById('restartBtn').style.display = 'none';
-        hamSkor = 0; kalanSure = 30; yumurtalar = []; tahtiravalliler = fabrikaAyarlari();
+        oAnkiOyunSkoru = 0; kalanSure = 30; yumurtalar = []; tahtiravalliler = fabrikaAyarlari();
         aktifHiz = false; aktifPuan = false;
-        document.querySelectorAll('.active-glow').forEach(el => el.classList.remove('active-glow'));
+        document.querySelectorAll('.active-glow').forEach(el => el.classList.remove('active-glow')); 
         document.getElementById('timerDisplay').innerText = "30";
         ui();
     }
@@ -263,7 +257,7 @@
                 let idx = Math.floor(this.x / 60);
                 if (idx >= 0 && idx < 6) {
                     let k = (this.p * [1,2,3,1,2,3][idx]) * (aktifPuan ? 2 : 1) * this.carpan;
-                    hamSkor += k; toplamPuan += k; ui(); parlamalar[idx] = 15; this.aktif = false;
+                    oAnkiOyunSkoru += k; toplamPuan += k; ui(); parlamalar[idx] = 15; this.aktif = false;
                 }
             }
         }
@@ -297,10 +291,12 @@
             ctx.fillStyle="#000"; ctx.beginPath(); ctx.arc(0,0,6,0,Math.PI*2); ctx.fill(); ctx.restore();
             if (oyunBasladi) { t.aci += t.temelHiz; if(Math.abs(t.aci)>0.6) t.temelHiz*=-1; }
         });
-        if (oyunBasladi) { yumurtalar.forEach(y => { y.guncelle(); y.ciz(); });
+        if (oyunBasladi) { 
+            yumurtalar.forEach(y => { y.guncelle(); y.ciz(); });
             tCtx.clearRect(0, 0, 50, 50); tCtx.beginPath();
             tCtx.arc(25, 25, 21, -Math.PI/2, (-Math.PI/2) + (Math.PI*2 * (kalanSure/30)));
             tCtx.strokeStyle = kalanSure <= 10 ? "#ff4d4d" : "#ffd700"; tCtx.lineWidth = 5; tCtx.stroke();
+            ui(); // Oyun içi skor güncellemesi
         }
         if (!oyunBasladi && oyuncuAdi && document.getElementById('scoreScreen').style.display === 'none') {
             ctx.fillStyle="#333"; ctx.font="bold 18px Courier New"; ctx.textAlign="center"; ctx.fillText("BAŞLAT", 180, 145);
