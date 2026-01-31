@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tavuk & Yumurtaları - KUTSAL HIZ</title>
+    <title>Tavuk & Yumurtaları - RUH DAİRELER</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
@@ -68,6 +68,7 @@
 </div>
 
 <script>
+    // FIREBASE CONFIG (Mühürlendi)
     const firebaseConfig = {
         apiKey: "AIzaSyBbtvGBl8m1x8thDlsUUutvujedIBCC4PA",
         authDomain: "blackjack-4x4.firebaseapp.com",
@@ -99,8 +100,15 @@
     let aktifHiz = false, aktifPuan = false, oyunBasladi = false, kalanSure = 30, parlamalar = [0,0,0,0,0,0];
     const tavukImg = new Image(); tavukImg.src = 'tavuk.png';
 
+    // RUH DAİRE SİSTEMİ
+    const ruhRenkleri = [{c:'rgba(255,255,0,0.3)', m:2, n:'Sarı'}, {c:'rgba(0,255,0,0.3)', m:3, n:'Yeşil'}, {c:'rgba(255,0,0,0.3)', m:5, n:'Kırmızı'}];
+    let ruhDaireler = [
+        {x: 180, y: 230, r: 25, colorIdx: 0, flash: 0, targetX: 180}, // 1-2 arası
+        {x: 180, y: 430, r: 25, colorIdx: 1, flash: 0, targetX: 180}  // 4-5 arası
+    ];
+
     const fabrikaAyarlari = () => [
-        { x: 180, y: 180, uzunluk: 150, aci: 0, temelHiz: 0.016 }, // 2 KAT HIZLANDIRILDI
+        { x: 180, y: 180, uzunluk: 150, aci: 0, temelHiz: 0.016 }, 
         { x: 75, y: 280, uzunluk: 150, aci: 0, temelHiz: -0.024 },
         { x: 285, y: 280, uzunluk: 150, aci: 0, temelHiz: 0.012 },
         { x: 180, y: 380, uzunluk: 150, aci: 0, temelHiz: -0.020 },
@@ -120,7 +128,7 @@
 
     function market(eylem, tip) {
         if (oyunBasladi) return;
-        if (eylem === 'al') { if (toplamAltin >= 10) { toplamAltin -= 10; tip === 'hiz' ? stokHiz++ : stokPuan++; } }
+        if (eylem === 'al') { if (toplamAltin >= 20) { toplamAltin -= 20; tip === 'hiz' ? stokHiz++ : stokPuan++; } } // 20 ALTIN OLDU
         else { if (tip === 'hiz' && stokHiz > 0) { aktifHiz = !aktifHiz; document.getElementById('use-hiz').classList.toggle('active-glow'); }
                if (tip === 'puan' && stokPuan > 0) { aktifPuan = !aktifPuan; document.getElementById('use-puan').classList.toggle('active-glow'); } }
         ui();
@@ -137,8 +145,15 @@
         const rect = canvas.getBoundingClientRect();
         const mx = (e.clientX - rect.left) * (360 / rect.width);
         const my = (e.clientY - rect.top) * (640 / rect.height);
+
         if (!oyunBasladi && mx > 140 && mx < 240 && my > 30 && my < 155) {
             oyunBasladi = true; if(aktifHiz) stokHiz--; if(aktifPuan) stokPuan--; ui(); start();
+        } else if (oyunBasladi) {
+            // Tıklanan yöne göre ruh daireleri hareket ettir
+            ruhDaireler.forEach(rd => {
+                if (mx < 180) rd.targetX = Math.max(75, rd.targetX - 40);
+                else rd.targetX = Math.min(285, rd.targetX + 40);
+            });
         }
     });
 
@@ -147,13 +162,14 @@
         let sT = setInterval(() => {
             if(!oyunBasladi) return; kalanSure--; document.getElementById('timerDisplay').innerText = kalanSure;
             playMetallicTick(kalanSure);
+            if (kalanSure % 5 === 0) ruhDaireler.forEach(rd => rd.colorIdx = Math.floor(Math.random()*3)); // 5sn'de bir renk değişimi
             if(kalanSure <= 0) { clearInterval(sT); clearInterval(yT); end(); }
         }, 1000);
     }
 
     async function end() {
         oyunBasladi = false;
-        let nA = Math.floor(toplamPuan / 50); toplamAltin += nA; toplamPuan -= (nA * 50);
+        let nA = Math.floor(toplamPuan / 100); toplamAltin += nA; toplamPuan -= (nA * 100); // 100 PUAN = 1 ALTIN
         const ref = database.ref('ty_players/' + oyuncuAdi);
         await ref.once('value', s => {
             let current = (s.val() && s.val().totalScore) || 0;
@@ -186,15 +202,25 @@
             const t = types[Math.floor(Math.random()*types.length)];
             this.x = 180; this.y = 110; this.r = 10; this.renk = t.r; this.p = t.p; this.ag = t.a;
             this.vy = 0; this.vx = (Math.random()-0.5)*0.8; this.aci = 0; this.aktif = true;
+            this.carpan = 1; this.gecenDaireler = new Set();
         }
         guncelle() {
             if (!this.aktif) return;
             this.vy += 0.08 * this.ag; this.y += this.vy; this.x += this.vx;
             
-            // KUTSAL BORDER KURALI: Takılma önlendi
             const tampon = 25;
             if (this.x < tampon) { this.x = tampon; this.vx *= -0.8; }
             if (this.x > 335) { this.x = 335; this.vx *= -0.8; }
+
+            // Ruh Daire Çarpışma Kontrolü
+            ruhDaireler.forEach((rd, idx) => {
+                let dist = Math.sqrt((this.x - rd.x)**2 + (this.y - rd.y)**2);
+                if (dist < rd.r && !this.gecenDaireler.has(idx)) {
+                    this.carpan *= ruhRenkleri[rd.colorIdx].m;
+                    this.gecenDaireler.add(idx);
+                    rd.flash = 10; // Flashing efekti
+                }
+            });
 
             tahtiravalliler.forEach(bar => {
                 let dx = this.x - bar.x, dy = this.y - bar.y;
@@ -203,11 +229,12 @@
                     this.vx += Math.sin(bar.aci)*0.3; this.vy *= 0.1; this.y = bar.y + (this.x-bar.x)*Math.tan(bar.aci) - 10; this.aci += this.vx*0.2;
                 }
             });
+
             if (this.y > 605) {
                 let idx = Math.floor(this.x / 60);
                 if (idx >= 0 && idx < 6) {
-                    let k = (this.p * [1,2,3,1,2,3][idx]) * (aktifPuan ? 2 : 1);
-                    toplamSkor += k; toplamPuan += k; ui(); parlamalar[idx] = 15; this.aktif = false;
+                    let k = (this.p * [1,2,3,1,2,3][idx]) * (aktifPuan ? 2 : 1) * this.carpan;
+                    toplamSkor += Math.floor(k); toplamPuan += Math.floor(k); ui(); parlamalar[idx] = 15; this.aktif = false;
                 }
             }
         }
@@ -215,18 +242,34 @@
             if (!this.aktif) return;
             ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.aci);
             ctx.fillStyle = this.renk; ctx.beginPath(); ctx.ellipse(0, 0, 8, 10, 0, 0, Math.PI*2); ctx.fill();
-            ctx.strokeStyle = "#000"; ctx.lineWidth = 1.5; ctx.stroke(); ctx.restore();
+            ctx.strokeStyle = (this.carpan > 1) ? "#f1c40f" : "#000"; // Geçmişse parlayan çerçeve
+            ctx.lineWidth = (this.carpan > 1) ? 3 : 1.5; ctx.stroke(); ctx.restore();
         }
     }
 
     function loop() {
         ctx.clearRect(0, 0, 360, 640);
         try { ctx.drawImage(tavukImg, 140, 45, 80, 80); } catch(e) {}
+
+        // Ruh Daireleri Çiz
+        ruhDaireler.forEach(rd => {
+            rd.x += (rd.targetX - rd.x) * 0.1; // Yumuşak hareket
+            ctx.save();
+            ctx.setLineDash([5, 5]);
+            ctx.strokeStyle = rd.flash > 0 ? "#fff" : "#000";
+            ctx.lineWidth = rd.flash > 0 ? 4 : 2;
+            ctx.fillStyle = ruhRenkleri[rd.colorIdx].c;
+            if (rd.flash > 0) { ctx.fillStyle = "rgba(255,255,255,0.6)"; rd.flash--; }
+            ctx.beginPath(); ctx.arc(rd.x, rd.y, rd.r, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+            ctx.restore();
+        });
+
         [1,2,3,1,2,3].forEach((c, i) => {
             ctx.fillStyle = ['#e74c3c','#3498db','#2ecc71','#f1c40f','#9b59b6','#e67e22'][i]; ctx.fillRect(i*60, 600, 60, 40);
             if (parlamalar[i] > 0) { ctx.fillStyle = "rgba(255,255,255," + (parlamalar[i]/20) + ")"; ctx.fillRect(i*60, 600, 60, 40); parlamalar[i]--; }
             ctx.fillStyle="#000"; ctx.font="bold 12px Arial"; ctx.textAlign="center"; ctx.fillText(c+"x", i*60+30, 625);
         });
+
         tahtiravalliler.forEach(t => {
             ctx.save(); ctx.translate(t.x, t.y); ctx.rotate(t.aci);
             ctx.strokeStyle="#5d2e0a"; ctx.lineWidth=10; ctx.lineCap="round";
@@ -234,6 +277,7 @@
             ctx.fillStyle="#000"; ctx.beginPath(); ctx.arc(0,0,6,0,Math.PI*2); ctx.fill(); ctx.restore();
             if (oyunBasladi) { t.aci += t.temelHiz; if(Math.abs(t.aci)>0.6) t.temelHiz*=-1; }
         });
+
         if (oyunBasladi) { 
             yumurtalar.forEach(y => { y.guncelle(); y.ciz(); });
             tCtx.clearRect(0, 0, 50, 50); tCtx.beginPath();
