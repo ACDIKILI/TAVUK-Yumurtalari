@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tavuk & Yumurtaları - KUTSAL RESTORASYON</title>
+    <title>Tavuk & Yumurtaları - KUTSAL HIZ</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
@@ -100,12 +100,12 @@
     const tavukImg = new Image(); tavukImg.src = 'tavuk.png';
 
     const fabrikaAyarlari = () => [
-        { x: 180, y: 180, uzunluk: 150, aci: 0, temelHiz: 0.010 }, // %25 hızlandırıldı
-        { x: 75, y: 280, uzunluk: 150, aci: 0, temelHiz: -0.015 },
-        { x: 285, y: 280, uzunluk: 150, aci: 0, temelHiz: 0.0075 },
-        { x: 180, y: 380, uzunluk: 150, aci: 0, temelHiz: -0.0125 },
-        { x: 75, y: 480, uzunluk: 150, aci: 0, temelHiz: 0.010 },
-        { x: 285, y: 480, uzunluk: 150, aci: 0, temelHiz: -0.005 }
+        { x: 180, y: 180, uzunluk: 150, aci: 0, temelHiz: 0.016 }, // 2 KAT HIZLANDIRILDI
+        { x: 75, y: 280, uzunluk: 150, aci: 0, temelHiz: -0.024 },
+        { x: 285, y: 280, uzunluk: 150, aci: 0, temelHiz: 0.012 },
+        { x: 180, y: 380, uzunluk: 150, aci: 0, temelHiz: -0.020 },
+        { x: 75, y: 480, uzunluk: 150, aci: 0, temelHiz: 0.016 },
+        { x: 285, y: 480, uzunluk: 150, aci: 0, temelHiz: -0.008 }
     ];
     let tahtiravalliler = fabrikaAyarlari();
     let yumurtalar = [];
@@ -185,17 +185,22 @@
             const types = [{r:'black',p:10,a:1.0},{r:'purple',p:7,a:0.8},{r:'red',p:6,a:0.7},{r:'green',p:5,a:0.6},{r:'white',p:1,a:0.2}];
             const t = types[Math.floor(Math.random()*types.length)];
             this.x = 180; this.y = 110; this.r = 10; this.renk = t.r; this.p = t.p; this.ag = t.a;
-            this.vy = 0; this.vx = (Math.random()-0.5)*0.4; this.aci = 0; this.aktif = true;
+            this.vy = 0; this.vx = (Math.random()-0.5)*0.8; this.aci = 0; this.aktif = true;
         }
         guncelle() {
             if (!this.aktif) return;
-            this.vy += 0.06 * this.ag; this.y += this.vy; this.x += this.vx;
-            const t = 22; if (this.x < t || this.x > 338) this.vx *= -0.7; // Duvar tamponu geri geldi
+            this.vy += 0.08 * this.ag; this.y += this.vy; this.x += this.vx;
+            
+            // KUTSAL BORDER KURALI: Takılma önlendi
+            const tampon = 25;
+            if (this.x < tampon) { this.x = tampon; this.vx *= -0.8; }
+            if (this.x > 335) { this.x = 335; this.vx *= -0.8; }
+
             tahtiravalliler.forEach(bar => {
                 let dx = this.x - bar.x, dy = this.y - bar.y;
                 let c = Math.cos(-bar.aci), s = Math.sin(-bar.aci), rx = dx*c - dy*s, ry = dx*s + dy*c;
                 if (Math.abs(rx) < bar.uzunluk/2 && Math.abs(ry) < 12) {
-                    this.vx += Math.sin(bar.aci)*0.2; this.vy *= 0.1; this.y = bar.y + (this.x-bar.x)*Math.tan(bar.aci) - 10; this.aci += this.vx*0.2;
+                    this.vx += Math.sin(bar.aci)*0.3; this.vy *= 0.1; this.y = bar.y + (this.x-bar.x)*Math.tan(bar.aci) - 10; this.aci += this.vx*0.2;
                 }
             });
             if (this.y > 605) {
