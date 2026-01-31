@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Tavuk & Yumurtaları - ACDgames</title>
+    <title>Tavuk & Yumurtaları - KUTSAL YEDEK</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        /* KUTSAL SEÇİM VE ZOOM ENGELİ */
+        /* KUTSAL MÜHÜR: iOS ZOOM VE SEÇİM ENGELİ */
         * { 
             -webkit-tap-highlight-color: transparent; 
             -webkit-touch-callout: none; 
@@ -21,62 +21,42 @@
             background: #fdf5e6; position: relative; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
         canvas { display: block; background: transparent; position: relative; z-index: 1; }
-        
-        /* BEYAZ KÖŞE TEMİZLİĞİ VE SKOR EKRANI */
-        .overlay { 
-            position: absolute; inset: 0; background: #000; z-index: 2000; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .ranking-box { 
-            width: 90%; background: #001a00; border: 3px solid #f1c40f; border-radius: 20px; 
-            padding: 20px; color: #f1c40f; box-sizing: border-box;
-        }
-        .login-btn { 
-            width: 70%; height: 55px; background: #f1c40f; border: none; border-radius: 15px; 
-            color: #000; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 15px;
-        }
-        .side-panel { 
-            position: absolute; left: 10px; z-index: 10; background: rgba(0,0,0,0.7); 
-            color: #ffd700; padding: 2px 8px; border: 2px solid #ffd700; width: 95px; font-size: 11px; font-weight: bold;
-        }
+        .overlay { position: absolute; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 0; }
+        .ranking-box { width: 90%; background: #001a00; border: 3px solid #f1c40f; border-radius: 20px; padding: 20px; color: #f1c40f; box-sizing: border-box; }
+        .side-panel { position: absolute; left: 10px; z-index: 10; background: rgba(0,0,0,0.7); color: #ffd700; padding: 2px 8px; border: 2px solid #ffd700; width: 95px; font-size: 11px; font-weight: bold; }
         #skor-panel { top: 10px; border-radius: 6px 6px 0 0; color: #fff; border-color: #fff; }
         #puan-panel { top: 31px; border-top: none; }
         #altin-panel { top: 52px; color: #ffae00; border-color: #ffae00; border-top: none; border-radius: 0 0 6px 6px; }
-        .market-area { position: absolute; right: 10px; top: 10px; z-index: 10; display: flex; flex-direction: column; gap: 6px; }
-        .bonus-group { background: white; border: 2px solid #001f3f; border-radius: 6px; overflow: hidden; width: 100px; text-align: center; font-size: 10px; }
     </style>
 </head>
 <body>
-
 <div id="telefon-cerceve">
     <div id="authScreen" class="overlay">
-        <div style="color:#fff; margin-bottom:20px; font-weight:bold;">ACDgames Sunar</div>
-        <div style="color:#f1c40f; font-size:24px; margin-bottom:30px;">TAVUK & YUMURTALARI</div>
+        <div style="color:#fff; margin-bottom:20px;">ACDgames Sunar</div>
+        <div style="color:#f1c40f; font-size:22px; margin-bottom:30px; font-weight:bold;">TAVUK & YUMURTALARI</div>
         <input type="text" id="playerName" placeholder="İSİM GİRİN" maxlength="10" style="width:80%; height:50px; text-align:center; font-size:20px; text-transform:uppercase;">
-        <button class="login-btn" onclick="login()">BAŞLA</button>
+        <button onclick="login()" style="width:70%; height:55px; background:#f1c40f; font-weight:bold; margin-top:20px; border-radius:15px;">BAŞLA</button>
     </div>
 
     <div id="scoreScreen" class="overlay" style="display:none;">
         <div class="ranking-box">
             <div style="text-align:center; font-weight:bold; margin-bottom:15px;">DÜNYA KLASMANI</div>
             <div id="rankingList"></div>
-            <div style="margin-top:15px; border-top:1px solid gold; padding-top:10px; text-align:center;">
-                KARİYER: <span id="myTotalScore">0</span><br>
-                SKOR: <span id="myGameScore" style="color:white;">0</span>
+            <div style="margin-top:20px; text-align:center; border-top:1px solid #f1c40f; padding-top:10px;">
+                KARİYER PUANINIZ: <span id="myTotalScore">0</span><br>
+                <span style="font-size:14px; color:white;">OYUN SKORUNUZ: <span id="myGameScore">0</span></span>
             </div>
         </div>
-        <button id="restartBtn" class="login-btn" onclick="restartGame()" style="display:none;">TEKRAR</button>
+        <button id="restartBtn" onclick="restartGame()" style="margin-top:20px; width:50%; height:50px; background:#f1c40f; font-weight:bold; border-radius:15px; display:none;">TEKRAR</button>
     </div>
 
     <div id="skor-panel" class="side-panel">SKOR: <span id="displaySkor">0</span></div>
     <div id="puan-panel" class="side-panel">PUAN: <span id="skor">0</span></div>
     <div id="altin-panel" class="side-panel">ALTIN: <span id="altinCount">0</span></div>
-
     <canvas id="oyunCanvas"></canvas>
 </div>
 
 <script>
-    // FIREBASE YAPILANDIRMASI
     const firebaseConfig = {
         apiKey: "AIzaSyBbtvGBl8m1x8thDlsUUutvujedIBCC4PA",
         authDomain: "blackjack-4x4.firebaseapp.com",
@@ -114,10 +94,9 @@
     async function end() {
         oyunBasladi = false;
         document.getElementById('myGameScore').innerText = Math.floor(toplamSkor);
-        
-        let nA = Math.floor(toplamPuan / 100); 
-        toplamAltin += nA; 
-        toplamPuan -= (nA * 100); 
+        let nA = Math.floor(toplamPuan / 100);
+        toplamAltin += nA;
+        toplamPuan -= (nA * 100);
 
         const ref = database.ref('ty_players/' + oyuncuAdi);
         await ref.set({
@@ -136,8 +115,6 @@
             document.getElementById('rankingList').innerHTML = h;
             document.getElementById('myTotalScore').innerText = toplamSkor;
             document.getElementById('scoreScreen').style.display = 'flex';
-            
-            // YANLIŞLIKLA TIKLAMA KORUMASI: 1 saniye sonra buton görünür
             setTimeout(() => { document.getElementById('restartBtn').style.display = 'block'; }, 1000);
         });
     }
@@ -157,11 +134,9 @@
 
     function loop() {
         ctx.clearRect(0, 0, 360, 640);
-        // Paskalya Yumurtası
         ctx.font = "60px Arial";
         ctx.textAlign = "center";
         ctx.fillText("🥚", 180, 110);
-        
         requestAnimationFrame(loop);
     }
     loop();
