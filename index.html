@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tavuk & Yumurtaları - RUH DAİRELER</title>
+    <title>Tavuk & Yumurtaları - KUTSAL FİNAL YEDEK</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
@@ -13,8 +13,9 @@
             background: #fdf5e6; position: relative; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
         canvas { display: block; background: transparent; position: relative; z-index: 1; }
-        .overlay { position: absolute; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .login-title { color: #fff; font-size: 18px; margin-bottom: 30px; }
+        /* KUTSAL DÜZELTME: BEYAZ KÖŞELER KALDIRILDI */
+        .overlay { position: absolute; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 0; }
+        .login-title { color: #fff; font-size: 18px; margin-bottom: 30px; text-align: center; font-weight: bold; }
         .input-container { width: 85%; height: 60px; border: 3px solid #f1c40f; border-radius: 15px; display: flex; align-items: center; background: #333; margin-bottom: 25px; }
         #playerName { width: 100%; background: transparent; border: none; color: #fff; font-size: 24px; text-align: center; text-transform: uppercase; outline: none; }
         .login-btn { width: 70%; height: 55px; background: #f1c40f; border: none; border-radius: 15px; color: #000; font-size: 22px; font-weight: bold; cursor: pointer; }
@@ -36,16 +37,19 @@
 
 <div id="telefon-cerceve">
     <div id="authScreen" class="overlay">
-        <div class="login-title">Lütfen İsminizi Girin (A-Z)</div>
+        <div class="login-title">ACDgames Sunar<br>TAVUK & YUMURTALARI</div>
         <div class="input-container"><input type="text" id="playerName" placeholder="OYUNCU İSMİ" maxlength="10"></div>
         <button class="login-btn" onclick="login()">OYUNA BAŞLA</button>
     </div>
 
     <div id="scoreScreen" class="overlay" style="display:none;">
         <div class="ranking-box">
-            <div style="text-align:center; font-weight:bold; margin-bottom:15px;">DÜNYA KLASMANI (KARİYER)</div>
+            <div style="text-align:center; font-weight:bold; margin-bottom:15px; font-size: 18px;">DÜNYA KLASMANI</div>
             <div id="rankingList"></div>
-            <div style="margin-top:20px; text-align:center; border-top:1px solid #f1c40f; padding-top:10px;">KARİYER PUANINIZ: <span id="myTotalScore">0</span></div>
+            <div style="margin-top:20px; text-align:center; border-top:1px solid #f1c40f; padding-top:10px;">
+                <div style="font-weight: bold;">KARİYER PUANINIZ: <span id="myTotalScore">0</span></div>
+                <div style="font-size: 14px; color: #fff; margin-top: 5px;">OYUN SKORUNUZ: <span id="myGameScore">0</span></div>
+            </div>
         </div>
         <button class="login-btn" style="margin-top:20px; width:50%" onclick="restartGame()">TEKRAR</button>
     </div>
@@ -60,15 +64,15 @@
     </div>
 
     <div class="market-area">
-        <div class="bonus-group"><div class="bonus-main">2xHız [<span id="st-hiz">0</span>]</div><div class="bonus-sub"><div class="bonus-btn" onclick="market('al','hiz')">AL</div><div class="bonus-btn" id="use-hiz" onclick="market('use','hiz')">KULLAN</div></div></div>
-        <div class="bonus-group"><div class="bonus-main">2xPuan [<span id="st-puan">0</span>]</div><div class="bonus-sub"><div class="bonus-btn" onclick="market('al','puan')">AL</div><div class="bonus-btn" id="use-puan" onclick="market('use','puan')">KULLAN</div></div></div>
+        <div class="bonus-group"><div class="bonus-main">2xHız [20 Altın]</div><div class="bonus-sub"><div class="bonus-btn" onclick="market('al','hiz')">AL (<span id="st-hiz">0</span>)</div><div class="bonus-btn" id="use-hiz" onclick="market('use','hiz')">KULLAN</div></div></div>
+        <div class="bonus-group"><div class="bonus-main">2xPuan [20 Altın]</div><div class="bonus-sub"><div class="bonus-btn" onclick="market('al','puan')">AL (<span id="st-puan">0</span>)</div><div class="bonus-btn" id="use-puan" onclick="market('use','puan')">KULLAN</div></div></div>
     </div>
 
     <canvas id="oyunCanvas"></canvas>
 </div>
 
 <script>
-    // FIREBASE CONFIG (Mühürlendi)
+    // (1) KUTSAL EMANET: FIREBASE KODLARI
     const firebaseConfig = {
         apiKey: "AIzaSyBbtvGBl8m1x8thDlsUUutvujedIBCC4PA",
         authDomain: "blackjack-4x4.firebaseapp.com",
@@ -101,10 +105,10 @@
     const tavukImg = new Image(); tavukImg.src = 'tavuk.png';
 
     // RUH DAİRE SİSTEMİ
-    const ruhRenkleri = [{c:'rgba(255,255,0,0.3)', m:2, n:'Sarı'}, {c:'rgba(0,255,0,0.3)', m:3, n:'Yeşil'}, {c:'rgba(255,0,0,0.3)', m:5, n:'Kırmızı'}];
+    const ruhRenkleri = [{c:'rgba(255,255,0,0.3)', m:2}, {c:'rgba(0,255,0,0.3)', m:3}, {c:'rgba(255,0,0,0.3)', m:5}];
     let ruhDaireler = [
-        {x: 180, y: 230, r: 25, colorIdx: 0, flash: 0, targetX: 180}, // 1-2 arası
-        {x: 180, y: 430, r: 25, colorIdx: 1, flash: 0, targetX: 180}  // 4-5 arası
+        {x: 180, y: 230, r: 25, colorIdx: 0, flash: 0, targetX: 180},
+        {x: 180, y: 430, r: 25, colorIdx: 1, flash: 0, targetX: 180}
     ];
 
     const fabrikaAyarlari = () => [
@@ -123,20 +127,27 @@
         if (/^[A-ZÇĞİÖŞÜ]+$/.test(input)) {
             oyuncuAdi = input; document.getElementById('authScreen').style.display = 'none';
             if (audioCtx.state === 'suspended') audioCtx.resume(); ui();
-        } else { alert("SADECE HARF!"); }
+        } else { alert("İSİM SADECE HARF OLMALI!"); }
     }
 
     function market(eylem, tip) {
         if (oyunBasladi) return;
-        if (eylem === 'al') { if (toplamAltin >= 20) { toplamAltin -= 20; tip === 'hiz' ? stokHiz++ : stokPuan++; } } // 20 ALTIN OLDU
-        else { if (tip === 'hiz' && stokHiz > 0) { aktifHiz = !aktifHiz; document.getElementById('use-hiz').classList.toggle('active-glow'); }
-               if (tip === 'puan' && stokPuan > 0) { aktifPuan = !aktifPuan; document.getElementById('use-puan').classList.toggle('active-glow'); } }
+        if (eylem === 'al') { 
+            if (toplamAltin >= 20) { toplamAltin -= 20; tip === 'hiz' ? stokHiz++ : stokPuan++; } 
+            else { alert("ALTIN YETERSİZ! (100 Puan = 1 Altın)"); }
+        }
+        else { 
+            if (tip === 'hiz' && stokHiz > 0) { aktifHiz = !aktifHiz; document.getElementById('use-hiz').classList.toggle('active-glow'); }
+            if (tip === 'puan' && stokPuan > 0) { aktifPuan = !aktifPuan; document.getElementById('use-puan').classList.toggle('active-glow'); } 
+        }
         ui();
     }
 
     function ui() {
-        document.getElementById('displaySkor').innerText = toplamSkor; document.getElementById('skor').innerText = toplamPuan;
-        document.getElementById('altinCount').innerText = toplamAltin; document.getElementById('st-hiz').innerText = stokHiz;
+        document.getElementById('displaySkor').innerText = toplamSkor; 
+        document.getElementById('skor').innerText = Math.floor(toplamPuan);
+        document.getElementById('altinCount').innerText = toplamAltin; 
+        document.getElementById('st-hiz').innerText = stokHiz;
         document.getElementById('st-puan').innerText = stokPuan;
     }
 
@@ -149,7 +160,6 @@
         if (!oyunBasladi && mx > 140 && mx < 240 && my > 30 && my < 155) {
             oyunBasladi = true; if(aktifHiz) stokHiz--; if(aktifPuan) stokPuan--; ui(); start();
         } else if (oyunBasladi) {
-            // Tıklanan yöne göre ruh daireleri hareket ettir
             ruhDaireler.forEach(rd => {
                 if (mx < 180) rd.targetX = Math.max(75, rd.targetX - 40);
                 else rd.targetX = Math.min(285, rd.targetX + 40);
@@ -162,18 +172,21 @@
         let sT = setInterval(() => {
             if(!oyunBasladi) return; kalanSure--; document.getElementById('timerDisplay').innerText = kalanSure;
             playMetallicTick(kalanSure);
-            if (kalanSure % 5 === 0) ruhDaireler.forEach(rd => rd.colorIdx = Math.floor(Math.random()*3)); // 5sn'de bir renk değişimi
+            if (kalanSure % 5 === 0) ruhDaireler.forEach(rd => rd.colorIdx = Math.floor(Math.random()*3));
             if(kalanSure <= 0) { clearInterval(sT); clearInterval(yT); end(); }
         }, 1000);
     }
 
     async function end() {
         oyunBasladi = false;
-        let nA = Math.floor(toplamPuan / 100); toplamAltin += nA; toplamPuan -= (nA * 100); // 100 PUAN = 1 ALTIN
+        // KUTSAL DÜZELTME: OYUN SKORU GÖSTERİMİ
+        document.getElementById('myGameScore').innerText = Math.floor(toplamSkor);
+        
+        let nA = Math.floor(toplamPuan / 100); toplamAltin += nA; toplamPuan -= (nA * 100); 
         const ref = database.ref('ty_players/' + oyuncuAdi);
         await ref.once('value', s => {
             let current = (s.val() && s.val().totalScore) || 0;
-            ref.set({ totalScore: current + toplamSkor });
+            ref.set({ totalScore: Math.floor(current + toplamSkor) });
         });
         showRanking();
     }
@@ -193,7 +206,9 @@
         document.getElementById('scoreScreen').style.display = 'none';
         toplamSkor = 0; kalanSure = 30; yumurtalar = []; tahtiravalliler = fabrikaAyarlari();
         aktifHiz = false; aktifPuan = false;
-        document.querySelectorAll('.active-glow').forEach(el => el.classList.remove('active-glow')); ui();
+        document.querySelectorAll('.active-glow').forEach(el => el.classList.remove('active-glow')); 
+        document.getElementById('timerDisplay').innerText = "30";
+        ui();
     }
 
     class Yumurta {
@@ -212,13 +227,12 @@
             if (this.x < tampon) { this.x = tampon; this.vx *= -0.8; }
             if (this.x > 335) { this.x = 335; this.vx *= -0.8; }
 
-            // Ruh Daire Çarpışma Kontrolü
             ruhDaireler.forEach((rd, idx) => {
                 let dist = Math.sqrt((this.x - rd.x)**2 + (this.y - rd.y)**2);
                 if (dist < rd.r && !this.gecenDaireler.has(idx)) {
                     this.carpan *= ruhRenkleri[rd.colorIdx].m;
                     this.gecenDaireler.add(idx);
-                    rd.flash = 10; // Flashing efekti
+                    rd.flash = 10;
                 }
             });
 
@@ -234,7 +248,7 @@
                 let idx = Math.floor(this.x / 60);
                 if (idx >= 0 && idx < 6) {
                     let k = (this.p * [1,2,3,1,2,3][idx]) * (aktifPuan ? 2 : 1) * this.carpan;
-                    toplamSkor += Math.floor(k); toplamPuan += Math.floor(k); ui(); parlamalar[idx] = 15; this.aktif = false;
+                    toplamSkor += k; toplamPuan += k; ui(); parlamalar[idx] = 15; this.aktif = false;
                 }
             }
         }
@@ -242,7 +256,7 @@
             if (!this.aktif) return;
             ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.aci);
             ctx.fillStyle = this.renk; ctx.beginPath(); ctx.ellipse(0, 0, 8, 10, 0, 0, Math.PI*2); ctx.fill();
-            ctx.strokeStyle = (this.carpan > 1) ? "#f1c40f" : "#000"; // Geçmişse parlayan çerçeve
+            ctx.strokeStyle = (this.carpan > 1) ? "#f1c40f" : "#000"; 
             ctx.lineWidth = (this.carpan > 1) ? 3 : 1.5; ctx.stroke(); ctx.restore();
         }
     }
@@ -251,17 +265,12 @@
         ctx.clearRect(0, 0, 360, 640);
         try { ctx.drawImage(tavukImg, 140, 45, 80, 80); } catch(e) {}
 
-        // Ruh Daireleri Çiz
         ruhDaireler.forEach(rd => {
-            rd.x += (rd.targetX - rd.x) * 0.1; // Yumuşak hareket
-            ctx.save();
-            ctx.setLineDash([5, 5]);
-            ctx.strokeStyle = rd.flash > 0 ? "#fff" : "#000";
-            ctx.lineWidth = rd.flash > 0 ? 4 : 2;
+            rd.x += (rd.targetX - rd.x) * 0.1;
+            ctx.save(); ctx.setLineDash([5, 5]); ctx.strokeStyle = rd.flash > 0 ? "#fff" : "#000"; ctx.lineWidth = rd.flash > 0 ? 4 : 2;
             ctx.fillStyle = ruhRenkleri[rd.colorIdx].c;
             if (rd.flash > 0) { ctx.fillStyle = "rgba(255,255,255,0.6)"; rd.flash--; }
-            ctx.beginPath(); ctx.arc(rd.x, rd.y, rd.r, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-            ctx.restore();
+            ctx.beginPath(); ctx.arc(rd.x, rd.y, rd.r, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.restore();
         });
 
         [1,2,3,1,2,3].forEach((c, i) => {
