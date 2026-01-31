@@ -7,7 +7,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        /* iOS ZOOM, SEÇİM VE MAVİ GÖLGE ENGELİ - KUTSALLARI KORUR */
+        /* iOS ZOOM VE SEÇİM ENGELİ */
         * { 
             -webkit-tap-highlight-color: transparent; 
             -webkit-touch-callout: none; 
@@ -21,8 +21,7 @@
             background: #fdf5e6; position: relative; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
         canvas { display: block; background: transparent; position: relative; z-index: 1; }
-        /* BEYAZ KÖŞE TEMİZLİĞİ */
-        .overlay { position: absolute; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 0; }
+        .overlay { position: absolute; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 0; overflow: hidden; }
         .ranking-box { width: 90%; background: #001a00; border: 3px solid #f1c40f; border-radius: 20px; padding: 20px; color: #f1c40f; box-sizing: border-box; }
         .login-btn { width: 70%; height: 55px; background: #f1c40f; border: none; border-radius: 15px; color: #000; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 15px; }
         .side-panel { position: absolute; left: 10px; z-index: 10; font-family: sans-serif; background: rgba(0,0,0,0.7); color: #ffd700; padding: 2px 8px; border: 2px solid #ffd700; width: 95px; text-align: left; font-size: 11px; font-weight: bold; }
@@ -42,10 +41,10 @@
 
 <div id="telefon-cerceve">
     <div id="authScreen" class="overlay">
-        <div style="color:#fff; margin-bottom:20px;">ACDgames Sunar</div>
+        <div style="color:#fff; margin-bottom:20px; font-weight:bold;">ACDgames Sunar</div>
         <div style="color:#f1c40f; font-size:24px; margin-bottom:30px; font-weight:bold;">TAVUK & YUMURTALARI</div>
-        <div class="input-container"><input type="text" id="playerName" placeholder="OYUNCU İSMİ" maxlength="10"></div>
-        <button class="login-btn" onclick="login()">OYUNA BAŞLA</button>
+        <input type="text" id="playerName" placeholder="OYUNCU İSMİ" style="width:80%; height:50px; text-align:center; font-size:20px; text-transform:uppercase; border-radius:10px;">
+        <button class="login-btn" onclick="login()">BAŞLA</button>
     </div>
 
     <div id="scoreScreen" class="overlay" style="display:none;">
@@ -78,6 +77,7 @@
 </div>
 
 <script>
+    // FIREBASE YAPILANDIRMASI
     const firebaseConfig = {
         apiKey: "AIzaSyBbtvGBl8m1x8thDlsUUutvujedIBCC4PA",
         authDomain: "blackjack-4x4.firebaseapp.com",
@@ -121,7 +121,7 @@
 
     async function login() {
         let input = document.getElementById('playerName').value.trim().toUpperCase();
-        if (/^[A-ZÇĞİÖŞÜ]+$/.test(input)) {
+        if (input) {
             oyuncuAdi = input;
             const ref = database.ref('ty_players/' + oyuncuAdi);
             await ref.once('value', s => {
@@ -158,7 +158,7 @@
 
         if (!oyunBasladi && my < 160) {
             oyunBasladi = true; if(aktifHiz) stokHiz--; if(aktifPuan) stokPuan--; ui(); start();
-        } else if (oyunBasladi && my > 600) { // Sizin Stratejiniz: Sadece en alta tıklama
+        } else if (oyunBasladi && my > 600) { 
             ruhDaireler.forEach(rd => {
                 if (mx < 180) rd.targetX = Math.max(75, rd.targetX - 45);
                 else rd.targetX = Math.min(285, rd.targetX + 45);
@@ -179,7 +179,7 @@
     async function end() {
         oyunBasladi = false;
         document.getElementById('myGameScore').innerText = Math.floor(hamSkor);
-        toplamSkor += hamSkor; 
+        toplamSkor += hamSkor; // Kümülatif Skor
         let nA = Math.floor(toplamPuan / 100); toplamAltin += nA; toplamPuan -= (nA * 100); 
         const ref = database.ref('ty_players/' + oyuncuAdi);
         await ref.set({ totalScore: Math.floor(toplamSkor), gold: toplamAltin, points: Math.floor(toplamPuan), bonusHiz: stokHiz, bonusPuan: stokPuan });
