@@ -2,27 +2,33 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Tavuk & Yumurtaları - ACDgames</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: sans-serif; touch-action: none; }
+        /* iOS ZOOM, SEÇİM VE MAVİ GÖLGE ENGELİ - KUTSALLARI KORUR */
+        * { 
+            -webkit-tap-highlight-color: transparent; 
+            -webkit-touch-callout: none; 
+            -webkit-user-select: none; 
+            user-select: none; 
+            touch-action: manipulation;
+        }
+        body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: sans-serif; }
         #telefon-cerceve {
             width: 360px; height: 640px; border: 12px solid #333; border-radius: 40px;
             background: #fdf5e6; position: relative; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
         canvas { display: block; background: transparent; position: relative; z-index: 1; }
+        /* BEYAZ KÖŞE TEMİZLİĞİ */
         .overlay { position: absolute; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 0; }
-        .login-title { color: #fff; font-size: 18px; margin-bottom: 30px; text-align: center; font-weight: bold; }
-        .input-container { width: 85%; height: 60px; border: 3px solid #f1c40f; border-radius: 15px; display: flex; align-items: center; background: #333; margin-bottom: 25px; }
-        #playerName { width: 100%; background: transparent; border: none; color: #fff; font-size: 24px; text-align: center; text-transform: uppercase; outline: none; }
-        .login-btn { width: 70%; height: 55px; background: #f1c40f; border: none; border-radius: 15px; color: #000; font-size: 22px; font-weight: bold; cursor: pointer; }
         .ranking-box { width: 90%; background: #001a00; border: 3px solid #f1c40f; border-radius: 20px; padding: 20px; color: #f1c40f; box-sizing: border-box; }
+        .login-btn { width: 70%; height: 55px; background: #f1c40f; border: none; border-radius: 15px; color: #000; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 15px; }
         .side-panel { position: absolute; left: 10px; z-index: 10; font-family: sans-serif; background: rgba(0,0,0,0.7); color: #ffd700; padding: 2px 8px; border: 2px solid #ffd700; width: 95px; text-align: left; font-size: 11px; font-weight: bold; }
         #skor-panel { top: 10px; border-radius: 6px 6px 0 0; color: #fff; border-color: #fff; }
-        #puan-panel { top: 31px; border-top: none; border-radius: 0; }
-        #altin-panel { top: 52px; color: #ffae00; border-color: #ffae00; border-top: none; border-top-left-radius: 0; border-top-right-radius: 0; border-radius: 0 0 6px 6px; }
+        #puan-panel { top: 31px; border-top: none; }
+        #altin-panel { top: 52px; color: #ffae00; border-color: #ffae00; border-top: none; border-radius: 0 0 6px 6px; }
         .timer-container { position: absolute; left: 15px; top: 85px; width: 50px; height: 50px; z-index: 20; }
         .market-area { position: absolute; right: 10px; top: 10px; z-index: 10; display: flex; flex-direction: column; gap: 6px; }
         .bonus-group { display: flex; flex-direction: column; width: 100px; background: white; border: 2px solid #001f3f; border-radius: 6px; overflow: hidden; }
@@ -36,7 +42,8 @@
 
 <div id="telefon-cerceve">
     <div id="authScreen" class="overlay">
-        <div class="login-title">ACDgames Sunar<br>TAVUK & YUMURTALARI</div>
+        <div style="color:#fff; margin-bottom:20px;">ACDgames Sunar</div>
+        <div style="color:#f1c40f; font-size:24px; margin-bottom:30px; font-weight:bold;">TAVUK & YUMURTALARI</div>
         <div class="input-container"><input type="text" id="playerName" placeholder="OYUNCU İSMİ" maxlength="10"></div>
         <button class="login-btn" onclick="login()">OYUNA BAŞLA</button>
     </div>
@@ -46,11 +53,11 @@
             <div style="text-align:center; font-weight:bold; margin-bottom:15px; font-size: 18px;">DÜNYA KLASMANI</div>
             <div id="rankingList"></div>
             <div style="margin-top:20px; text-align:center; border-top:1px solid #f1c40f; padding-top:10px;">
-                <div style="font-weight: bold;">KARİYER PUANINIZ: <span id="myTotalScore">0</span></div>
+                <div style="font-weight: bold;">TOPLAM KARİYER: <span id="myTotalScore">0</span></div>
                 <div style="font-size: 14px; color: #fff; margin-top: 5px;">OYUN SKORUNUZ: <span id="myGameScore">0</span></div>
             </div>
         </div>
-        <button class="login-btn" style="margin-top:20px; width:50%" onclick="restartGame()">TEKRAR</button>
+        <button id="restartBtn" class="login-btn" style="margin-top:20px; width:50%; display:none;" onclick="restartGame()">TEKRAR</button>
     </div>
 
     <div id="skor-panel" class="side-panel">SKOR: <span id="displaySkor">0</span></div>
@@ -99,21 +106,15 @@
     }
 
     let oyuncuAdi = "", toplamSkor = 0, toplamPuan = 0, toplamAltin = 0, stokHiz = 0, stokPuan = 0;
-    let aktifHiz = false, aktifPuan = false, oyunBasladi = false, kalanSure = 30, parlamalar = [0,0,0,0,0,0], oAnkiOyunSkoru = 0;
+    let aktifHiz = false, aktifPuan = false, oyunBasladi = false, kalanSure = 30, parlamalar = [0,0,0,0,0,0], hamSkor = 0;
 
     const ruhRenkleri = [{c:'rgba(255,255,0,0.3)', m:2}, {c:'rgba(0,255,0,0.3)', m:3}, {c:'rgba(255,0,0,0.3)', m:5}];
-    let ruhDaireler = [
-        {x: 180, y: 230, r: 25, colorIdx: 0, flash: 0, targetX: 180},
-        {x: 180, y: 430, r: 25, colorIdx: 1, flash: 0, targetX: 180}
-    ];
+    let ruhDaireler = [{x: 180, y: 230, r: 25, colorIdx: 0, flash: 0, targetX: 180}, {x: 180, y: 430, r: 25, colorIdx: 1, flash: 0, targetX: 180}];
 
     const fabrikaAyarlari = () => [
-        { x: 180, y: 180, uzunluk: 150, aci: 0, temelHiz: 0.016 }, 
-        { x: 75, y: 280, uzunluk: 150, aci: 0, temelHiz: -0.024 },
-        { x: 285, y: 280, uzunluk: 150, aci: 0, temelHiz: 0.012 },
-        { x: 180, y: 380, uzunluk: 150, aci: 0, temelHiz: -0.020 },
-        { x: 75, y: 480, uzunluk: 150, aci: 0, temelHiz: 0.016 },
-        { x: 285, y: 480, uzunluk: 150, aci: 0, temelHiz: -0.008 }
+        { x: 180, y: 180, uzunluk: 150, aci: 0, temelHiz: 0.016 }, { x: 75, y: 280, uzunluk: 150, aci: 0, temelHiz: -0.024 },
+        { x: 285, y: 280, uzunluk: 150, aci: 0, temelHiz: 0.012 }, { x: 180, y: 380, uzunluk: 150, aci: 0, temelHiz: -0.020 },
+        { x: 75, y: 480, uzunluk: 150, aci: 0, temelHiz: 0.016 }, { x: 285, y: 480, uzunluk: 150, aci: 0, temelHiz: -0.008 }
     ];
     let tahtiravalliler = fabrikaAyarlari();
     let yumurtalar = [];
@@ -125,37 +126,28 @@
             const ref = database.ref('ty_players/' + oyuncuAdi);
             await ref.once('value', s => {
                 const data = s.val() || {};
-                toplamSkor = data.totalScore || 0;
-                toplamAltin = data.gold || 0;
-                toplamPuan = data.points || 0;
-                stokHiz = data.bonusHiz || 0;
-                stokPuan = data.bonusPuan || 0;
+                toplamSkor = data.totalScore || 0; toplamAltin = data.gold || 0;
+                toplamPuan = data.points || 0; stokHiz = data.bonusHiz || 0; stokPuan = data.bonusPuan || 0;
             });
             document.getElementById('authScreen').style.display = 'none';
             if (audioCtx.state === 'suspended') audioCtx.resume();
             ui();
-        } else { alert("İSİM SADECE HARF OLMALI!"); }
+        }
     }
 
     function market(eylem, tip) {
         if (oyunBasladi) return;
-        if (eylem === 'al') { 
-            if (toplamAltin >= 20) { toplamAltin -= 20; tip === 'hiz' ? stokHiz++ : stokPuan++; } 
-            else { alert("ALTIN YETERSİZ!"); }
-        }
-        else { 
-            if (tip === 'hiz' && stokHiz > 0) { aktifHiz = !aktifHiz; document.getElementById('use-hiz').classList.toggle('active-glow'); }
-            if (tip === 'puan' && stokPuan > 0) { aktifPuan = !aktifPuan; document.getElementById('use-puan').classList.toggle('active-glow'); } 
-        }
+        if (eylem === 'al') { if (toplamAltin >= 20) { toplamAltin -= 20; tip === 'hiz' ? stokHiz++ : stokPuan++; } }
+        else { if (tip === 'hiz' && stokHiz > 0) { aktifHiz = !aktifHiz; document.getElementById('use-hiz').classList.toggle('active-glow'); }
+               if (tip === 'puan' && stokPuan > 0) { aktifPuan = !aktifPuan; document.getElementById('use-puan').classList.toggle('active-glow'); } }
         ui();
     }
 
     function ui() {
-        document.getElementById('displaySkor').innerText = Math.floor(oAnkiOyunSkoru);
+        document.getElementById('displaySkor').innerText = Math.floor(hamSkor);
         document.getElementById('skor').innerText = Math.floor(toplamPuan);
         document.getElementById('altinCount').innerText = toplamAltin;
-        document.getElementById('st-hiz').innerText = stokHiz;
-        document.getElementById('st-puan').innerText = stokPuan;
+        document.getElementById('st-hiz').innerText = stokHiz; document.getElementById('st-puan').innerText = stokPuan;
     }
 
     canvas.addEventListener('mousedown', (e) => {
@@ -164,18 +156,17 @@
         const mx = (e.clientX - rect.left) * (360 / rect.width);
         const my = (e.clientY - rect.top) * (640 / rect.height);
 
-        if (!oyunBasladi && mx > 140 && mx < 240 && my > 30 && my < 155) {
+        if (!oyunBasladi && my < 160) {
             oyunBasladi = true; if(aktifHiz) stokHiz--; if(aktifPuan) stokPuan--; ui(); start();
-        } else if (oyunBasladi) {
+        } else if (oyunBasladi && my > 600) { // Sizin Stratejiniz: Sadece en alta tıklama
             ruhDaireler.forEach(rd => {
-                if (mx < 180) rd.targetX = Math.max(75, rd.targetX - 40);
-                else rd.targetX = Math.min(285, rd.targetX + 40);
+                if (mx < 180) rd.targetX = Math.max(75, rd.targetX - 45);
+                else rd.targetX = Math.min(285, rd.targetX + 45);
             });
         }
     });
 
     function start() {
-        oAnkiOyunSkoru = 0;
         let yT = setInterval(() => { if(oyunBasladi) yumurtalar.push(new Yumurta()); }, aktifHiz ? 1100 : 2200);
         let sT = setInterval(() => {
             if(!oyunBasladi) return; kalanSure--; document.getElementById('timerDisplay').innerText = kalanSure;
@@ -187,20 +178,11 @@
 
     async function end() {
         oyunBasladi = false;
-        document.getElementById('myGameScore').innerText = Math.floor(oAnkiOyunSkoru);
-        
-        // Skorun üzerine eklenmesi
-        toplamSkor += oAnkiOyunSkoru;
-        
+        document.getElementById('myGameScore').innerText = Math.floor(hamSkor);
+        toplamSkor += hamSkor; 
         let nA = Math.floor(toplamPuan / 100); toplamAltin += nA; toplamPuan -= (nA * 100); 
         const ref = database.ref('ty_players/' + oyuncuAdi);
-        await ref.set({
-            totalScore: Math.floor(toplamSkor),
-            gold: toplamAltin,
-            points: Math.floor(toplamPuan),
-            bonusHiz: stokHiz,
-            bonusPuan: stokPuan
-        });
+        await ref.set({ totalScore: Math.floor(toplamSkor), gold: toplamAltin, points: Math.floor(toplamPuan), bonusHiz: stokHiz, bonusPuan: stokPuan });
         showRanking();
     }
 
@@ -210,18 +192,19 @@
             p.reverse();
             let h = ""; p.forEach((v, i) => h += `<div style="display:flex; justify-content:space-between; margin:5px 0;"><span>${i+1}. ${v.n}</span><span>${v.s}</span></div>`);
             document.getElementById('rankingList').innerHTML = h;
-            database.ref('ty_players/' + oyuncuAdi).once('value', s => { document.getElementById('myTotalScore').innerText = s.val().totalScore; });
+            document.getElementById('myTotalScore').innerText = Math.floor(toplamSkor);
             document.getElementById('scoreScreen').style.display = 'flex';
+            setTimeout(() => { document.getElementById('restartBtn').style.display = 'block'; }, 1000);
         });
     }
 
     function restartGame() {
         document.getElementById('scoreScreen').style.display = 'none';
-        oAnkiOyunSkoru = 0; kalanSure = 30; yumurtalar = []; tahtiravalliler = fabrikaAyarlari();
+        document.getElementById('restartBtn').style.display = 'none';
+        hamSkor = 0; kalanSure = 30; yumurtalar = []; tahtiravalliler = fabrikaAyarlari();
         aktifHiz = false; aktifPuan = false;
-        document.querySelectorAll('.active-glow').forEach(el => el.classList.remove('active-glow')); 
-        document.getElementById('timerDisplay').innerText = "30";
-        ui();
+        document.querySelectorAll('.active-glow').forEach(el => el.classList.remove('active-glow'));
+        document.getElementById('timerDisplay').innerText = "30"; ui();
     }
 
     class Yumurta {
@@ -235,15 +218,12 @@
         guncelle() {
             if (!this.aktif) return;
             this.vy += 0.08 * this.ag; this.y += this.vy; this.x += this.vx;
-            const tampon = 25;
-            if (this.x < tampon) { this.x = tampon; this.vx *= -0.8; }
+            const tampon = 25; if (this.x < tampon) { this.x = tampon; this.vx *= -0.8; }
             if (this.x > 335) { this.x = 335; this.vx *= -0.8; }
             ruhDaireler.forEach((rd, idx) => {
                 let dist = Math.sqrt((this.x - rd.x)**2 + (this.y - rd.y)**2);
                 if (dist < rd.r && !this.gecenDaireler.has(idx)) {
-                    this.carpan *= ruhRenkleri[rd.colorIdx].m;
-                    this.gecenDaireler.add(idx);
-                    rd.flash = 10;
+                    this.carpan *= ruhRenkleri[rd.colorIdx].m; this.gecenDaireler.add(idx); rd.flash = 10;
                 }
             });
             tahtiravalliler.forEach(bar => {
@@ -257,7 +237,7 @@
                 let idx = Math.floor(this.x / 60);
                 if (idx >= 0 && idx < 6) {
                     let k = (this.p * [1,2,3,1,2,3][idx]) * (aktifPuan ? 2 : 1) * this.carpan;
-                    oAnkiOyunSkoru += k; toplamPuan += k; ui(); parlamalar[idx] = 15; this.aktif = false;
+                    hamSkor += k; toplamPuan += k; ui(); parlamalar[idx] = 15; this.aktif = false;
                 }
             }
         }
@@ -275,8 +255,7 @@
         ruhDaireler.forEach(rd => {
             rd.x += (rd.targetX - rd.x) * 0.1;
             ctx.save(); ctx.setLineDash([5, 5]); ctx.strokeStyle = rd.flash > 0 ? "#fff" : "#000"; ctx.lineWidth = rd.flash > 0 ? 4 : 2;
-            ctx.fillStyle = ruhRenkleri[rd.colorIdx].c;
-            if (rd.flash > 0) { ctx.fillStyle = "rgba(255,255,255,0.6)"; rd.flash--; }
+            ctx.fillStyle = ruhRenkleri[rd.colorIdx].c; if (rd.flash > 0) { ctx.fillStyle = "rgba(255,255,255,0.6)"; rd.flash--; }
             ctx.beginPath(); ctx.arc(rd.x, rd.y, rd.r, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.restore();
         });
         [1,2,3,1,2,3].forEach((c, i) => {
@@ -285,18 +264,14 @@
             ctx.fillStyle="#000"; ctx.font="bold 12px Arial"; ctx.textAlign="center"; ctx.fillText(c+"x", i*60+30, 625);
         });
         tahtiravalliler.forEach(t => {
-            ctx.save(); ctx.translate(t.x, t.y); ctx.rotate(t.aci);
-            ctx.strokeStyle="#5d2e0a"; ctx.lineWidth=10; ctx.lineCap="round";
+            ctx.save(); ctx.translate(t.x, t.y); ctx.rotate(t.aci); ctx.strokeStyle="#5d2e0a"; ctx.lineWidth=10; ctx.lineCap="round";
             ctx.beginPath(); ctx.moveTo(-t.uzunluk/2,0); ctx.lineTo(t.uzunluk/2,0); ctx.stroke();
             ctx.fillStyle="#000"; ctx.beginPath(); ctx.arc(0,0,6,0,Math.PI*2); ctx.fill(); ctx.restore();
             if (oyunBasladi) { t.aci += t.temelHiz; if(Math.abs(t.aci)>0.6) t.temelHiz*=-1; }
         });
-        if (oyunBasladi) { 
-            yumurtalar.forEach(y => { y.guncelle(); y.ciz(); });
-            tCtx.clearRect(0, 0, 50, 50); tCtx.beginPath();
-            tCtx.arc(25, 25, 21, -Math.PI/2, (-Math.PI/2) + (Math.PI*2 * (kalanSure/30)));
+        if (oyunBasladi) { yumurtalar.forEach(y => { y.guncelle(); y.ciz(); });
+            tCtx.clearRect(0, 0, 50, 50); tCtx.beginPath(); tCtx.arc(25, 25, 21, -Math.PI/2, (-Math.PI/2) + (Math.PI*2 * (kalanSure/30)));
             tCtx.strokeStyle = kalanSure <= 10 ? "#ff4d4d" : "#ffd700"; tCtx.lineWidth = 5; tCtx.stroke();
-            ui(); // Oyun içi skor güncellemesi
         }
         if (!oyunBasladi && oyuncuAdi && document.getElementById('scoreScreen').style.display === 'none') {
             ctx.fillStyle="#333"; ctx.font="bold 18px Courier New"; ctx.textAlign="center"; ctx.fillText("BAŞLAT", 180, 145);
