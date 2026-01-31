@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Tavuk & Yumurtaları - KUTSAL TEMEL</title>
+    <title>Tavuk & Yumurtaları - ACDgames</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        /* iOS ZOOM VE SEÇİM ENGELİ - KUTSALLARI KORUR */
+        /* iOS ZOOM, SEÇİM VE MAVİ GÖLGE ENGELİ */
         * { 
             -webkit-tap-highlight-color: transparent; 
             -webkit-touch-callout: none; 
@@ -15,12 +15,13 @@
             user-select: none; 
             touch-action: manipulation;
         }
-        body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: sans-serif; touch-action: none; }
+        body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: sans-serif; }
         #telefon-cerceve {
             width: 360px; height: 640px; border: 12px solid #333; border-radius: 40px;
             background: #fdf5e6; position: relative; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
         canvas { display: block; background: transparent; position: relative; z-index: 1; }
+        /* BEYAZ KÖŞE TEMİZLİĞİ */
         .overlay { position: absolute; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 0; }
         .login-title { color: #fff; font-size: 18px; margin-bottom: 30px; text-align: center; font-weight: bold; }
         .input-container { width: 85%; height: 60px; border: 3px solid #f1c40f; border-radius: 15px; display: flex; align-items: center; background: #333; margin-bottom: 25px; }
@@ -54,7 +55,7 @@
             <div style="text-align:center; font-weight:bold; margin-bottom:15px; font-size: 18px;">DÜNYA KLASMANI</div>
             <div id="rankingList"></div>
             <div style="margin-top:20px; text-align:center; border-top:1px solid #f1c40f; padding-top:10px;">
-                <div style="font-weight: bold;">KARİYER PUANINIZ: <span id="myTotalScore">0</span></div>
+                <div style="font-weight: bold;">TOPLAM KARİYER: <span id="myTotalScore">0</span></div>
                 <div style="font-size: 14px; color: #fff; margin-top: 5px;">OYUN SKORUNUZ: <span id="myGameScore">0</span></div>
             </div>
         </div>
@@ -79,7 +80,6 @@
 </div>
 
 <script>
-    // FIREBASE CONFIG - BlackJACK Pot Protokolü
     const firebaseConfig = {
         apiKey: "AIzaSyBbtvGBl8m1x8thDlsUUutvujedIBCC4PA",
         authDomain: "blackjack-4x4.firebaseapp.com",
@@ -108,9 +108,8 @@
     }
 
     let oyuncuAdi = "", toplamSkor = 0, toplamPuan = 0, toplamAltin = 0, stokHiz = 0, stokPuan = 0;
-    let aktifHiz = false, aktifPuan = false, oyunBasladi = false, kalanSure = 30, parlamalar = [0,0,0,0,0,0];
+    let aktifHiz = false, aktifPuan = false, oyunBasladi = false, kalanSure = 30, parlamalar = [0,0,0,0,0,0], hamSkor = 0;
 
-    // RUH DAİRE SİSTEMİ
     const ruhRenkleri = [{c:'rgba(255,255,0,0.3)', m:2}, {c:'rgba(0,255,0,0.3)', m:3}, {c:'rgba(255,0,0,0.3)', m:5}];
     let ruhDaireler = [
         {x: 180, y: 230, r: 25, colorIdx: 0, flash: 0, targetX: 180},
@@ -161,7 +160,7 @@
     }
 
     function ui() {
-        document.getElementById('displaySkor').innerText = Math.floor(toplamSkor);
+        document.getElementById('displaySkor').innerText = Math.floor(hamSkor);
         document.getElementById('skor').innerText = Math.floor(toplamPuan);
         document.getElementById('altinCount').innerText = toplamAltin;
         document.getElementById('st-hiz').innerText = stokHiz;
@@ -195,8 +194,9 @@
 
     async function end() {
         oyunBasladi = false;
-        document.getElementById('myGameScore').innerText = Math.floor(toplamSkor);
-        let nA = Math.floor(toplamPuan / 100); toplamAltin += nA; toplamPuan -= (nA * 100);
+        document.getElementById('myGameScore').innerText = Math.floor(hamSkor);
+        toplamSkor += hamSkor; 
+        let nA = Math.floor(toplamPuan / 100); toplamAltin += nA; toplamPuan -= (nA * 100); 
         const ref = database.ref('ty_players/' + oyuncuAdi);
         await ref.set({
             totalScore: Math.floor(toplamSkor),
@@ -214,7 +214,7 @@
             p.reverse();
             let h = ""; p.forEach((v, i) => h += `<div style="display:flex; justify-content:space-between; margin:5px 0;"><span>${i+1}. ${v.n}</span><span>${v.s}</span></div>`);
             document.getElementById('rankingList').innerHTML = h;
-            document.getElementById('myTotalScore').innerText = toplamSkor;
+            document.getElementById('myTotalScore').innerText = Math.floor(toplamSkor);
             document.getElementById('scoreScreen').style.display = 'flex';
             setTimeout(() => { document.getElementById('restartBtn').style.display = 'block'; }, 1000);
         });
@@ -223,7 +223,7 @@
     function restartGame() {
         document.getElementById('scoreScreen').style.display = 'none';
         document.getElementById('restartBtn').style.display = 'none';
-        toplamSkor = 0; kalanSure = 30; yumurtalar = []; tahtiravalliler = fabrikaAyarlari();
+        hamSkor = 0; kalanSure = 30; yumurtalar = []; tahtiravalliler = fabrikaAyarlari();
         aktifHiz = false; aktifPuan = false;
         document.querySelectorAll('.active-glow').forEach(el => el.classList.remove('active-glow'));
         document.getElementById('timerDisplay').innerText = "30";
@@ -263,7 +263,7 @@
                 let idx = Math.floor(this.x / 60);
                 if (idx >= 0 && idx < 6) {
                     let k = (this.p * [1,2,3,1,2,3][idx]) * (aktifPuan ? 2 : 1) * this.carpan;
-                    toplamSkor += k; toplamPuan += k; ui(); parlamalar[idx] = 15; this.aktif = false;
+                    hamSkor += k; toplamPuan += k; ui(); parlamalar[idx] = 15; this.aktif = false;
                 }
             }
         }
