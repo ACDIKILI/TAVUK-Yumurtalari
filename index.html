@@ -7,7 +7,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        /* iOS ZOOM VE SEÇİM ENGELİ */
+        /* iOS ZOOM VE SEÇİM ENGELİ - KUTSALLARI KORUR */
         * { 
             -webkit-tap-highlight-color: transparent; 
             -webkit-touch-callout: none; 
@@ -35,15 +35,26 @@
         .bonus-sub { display: flex; height: 22px; }
         .bonus-btn { flex: 1; display: flex; justify-content: center; align-items: center; font-size: 9px; font-weight: bold; cursor: pointer; border-right: 1px solid #001f3f; background: #fff; }
         .active-glow { background: #ffd700 !important; }
+        
+        /* İNFO PANELİ */
+        #info-box { color: #fff; font-size: 11px; text-align: left; width: 85%; line-height: 1.4; margin-top: 15px; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; }
     </style>
 </head>
 <body>
 
 <div id="telefon-cerceve">
     <div id="authScreen" class="overlay">
-        <div style="color:#fff; margin-bottom:20px; font-weight:bold;">ACDgames Sunar</div>
-        <div style="color:#f1c40f; font-size:24px; margin-bottom:30px; font-weight:bold;">TAVUK & YUMURTALARI</div>
-        <input type="text" id="playerName" placeholder="OYUNCU İSMİ" style="width:80%; height:50px; text-align:center; font-size:20px; text-transform:uppercase; border-radius:10px;">
+        <div style="color:#fff; margin-bottom:10px;">ACDgames Sunar</div>
+        <div style="color:#f1c40f; font-size:22px; font-weight:bold;">TAVUK & YUMURTALARI</div>
+        
+        <div id="info-box">
+            • Değişik renk, puan ve ağırlıkta yumurtalar.<br>
+            • 100 Puan = 1 Altın otomatik dönüşüm.<br>
+            • Alt şerit kontrolü: Soldan 3 bölme SOLA, sağdan 3 bölme SAĞA hareket ettirir.<br>
+            • Marketten 2xHIZ ve 2xPUAN bonusları (20 Altın).
+        </div>
+
+        <input type="text" id="playerName" placeholder="OYUNCU İSMİ" maxlength="10" style="width:80%; height:50px; text-align:center; font-size:20px; text-transform:uppercase; margin-top:15px; border-radius:10px;">
         <button class="login-btn" onclick="login()">BAŞLA</button>
     </div>
 
@@ -108,6 +119,7 @@
     let oyuncuAdi = "", toplamSkor = 0, toplamPuan = 0, toplamAltin = 0, stokHiz = 0, stokPuan = 0;
     let aktifHiz = false, aktifPuan = false, oyunBasladi = false, kalanSure = 30, parlamalar = [0,0,0,0,0,0], hamSkor = 0;
 
+    // RUH DAİRE SİSTEMİ
     const ruhRenkleri = [{c:'rgba(255,255,0,0.3)', m:2}, {c:'rgba(0,255,0,0.3)', m:3}, {c:'rgba(255,0,0,0.3)', m:5}];
     let ruhDaireler = [{x: 180, y: 230, r: 25, colorIdx: 0, flash: 0, targetX: 180}, {x: 180, y: 430, r: 25, colorIdx: 1, flash: 0, targetX: 180}];
 
@@ -159,6 +171,7 @@
         if (!oyunBasladi && my < 160) {
             oyunBasladi = true; if(aktifHiz) stokHiz--; if(aktifPuan) stokPuan--; ui(); start();
         } else if (oyunBasladi && my > 600) { 
+            // STRATEJİK HAREKET: ALT ŞERİT KONTROLÜ
             ruhDaireler.forEach(rd => {
                 if (mx < 180) rd.targetX = Math.max(75, rd.targetX - 45);
                 else rd.targetX = Math.min(285, rd.targetX + 45);
@@ -179,7 +192,7 @@
     async function end() {
         oyunBasladi = false;
         document.getElementById('myGameScore').innerText = Math.floor(hamSkor);
-        toplamSkor += hamSkor; // Kümülatif Skor
+        toplamSkor += hamSkor; // KÜMÜLATİF SKOR KAYDI
         let nA = Math.floor(toplamPuan / 100); toplamAltin += nA; toplamPuan -= (nA * 100); 
         const ref = database.ref('ty_players/' + oyuncuAdi);
         await ref.set({ totalScore: Math.floor(toplamSkor), gold: toplamAltin, points: Math.floor(toplamPuan), bonusHiz: stokHiz, bonusPuan: stokPuan });
