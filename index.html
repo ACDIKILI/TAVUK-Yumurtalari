@@ -39,10 +39,37 @@
         /* İNFO PANELİ */
         #info-box { color: #fff; font-size: 11px; text-align: left; width: 85%; line-height: 1.4; margin-top: 15px; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; }
     </style>
+
+<style>
+  .menu-don-btn {
+    position: absolute;
+    top: 75px;  /* Saatin altına inmesi için 15'ten 55'e çıkardık */
+    left: 20px; /* Kenardan biraz daha açtık */
+    width: 60px;
+    height: 28px;
+    background-color: #2ecc71;
+    border: 2px solid #000000;
+    color: black;
+    font-weight: bold;
+    font-size: 11px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10000; /* En üstte kalması garantilendi */
+    text-decoration: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+</style>
+    
 </head>
 <body>
 
 <div id="telefon-cerceve">
+
+<a href="https://acdikili.github.io/ACDgames/" class="menu-don-btn">MENÜ</a>
+    
     <div id="authScreen" class="overlay">
         <div style="color:#fff; margin-bottom:10px;">ACDgames Sunar</div>
         <div style="color:#f1c40f; font-size:22px; font-weight:bold;">TAVUK & YUMURTALARI</div>
@@ -295,3 +322,4 @@
 </script>
 </body>
 </html>
+
